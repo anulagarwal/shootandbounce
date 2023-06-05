@@ -1,21 +1,30 @@
 using UnityEngine;
 using DG.Tweening;
+using TMPro;
 public class PlacementPoint : MonoBehaviour
 {
     public bool isOccupied = false; // Whether the point is currently occupied by a gun
     public bool isUpgradable = false; // Whether the point can be upgraded
     public int upgradeCost = 100; // Cost to upgrade the point
     public Transform mergeText;
+    public TextMeshPro levelText;
+
 
 
     public void EnableMergeText()
     {
-        mergeText.gameObject.SetActive(true);
+        if (mergeText != null)
+        {
+            mergeText.gameObject.SetActive(true);
+        }
       
     }
     public void DisableMergeText()
     {
-        mergeText.gameObject.SetActive(false);
+        if (mergeText != null)
+        {
+            mergeText.gameObject.SetActive(false);
+        }
     }
 
     // Function to upgrade the point

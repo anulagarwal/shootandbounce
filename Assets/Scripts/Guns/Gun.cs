@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using DG.Tweening;
 public class Gun : MonoBehaviour
 {
     public float fireRate = 1f; // bullets per second
@@ -9,7 +9,7 @@ public class Gun : MonoBehaviour
     public float shootForce = 10f; // adjust as needed
     public float detectionRadius = 5f; // adjust as needed
     public LayerMask ballLayer; // assign in Inspector
-    private Ball targetBall;
+    private Transform targetBall;
     private float nextFireTime = 0f;
     public bool isInGrid = false;
     public int level = 1;
@@ -19,14 +19,20 @@ public class Gun : MonoBehaviour
     public PlacementPoint currentPlacementPoint;
     public Transform shooterPos;
 
-    public List<GameObject> bulletPrefabs;
 
-    int damage;
+    public List<GameObject> bulletPrefabs;
+    public List<float> gunDamages;
+    public List<float> gunFireRates;
+    public List<float> ranges;
+
+
+    public float critChance;
+    public float cloneChance;   
+    public int damage;
+   
     private void Start()
     {
-        damage = Mathf.RoundToInt(UpgradeManager.instance.GetGunDamage(level));
-        fireRate = UpgradeManager.instance.GetGunFireRate(level);
-        detectionRadius = UpgradeManager.instance.GetGunRange(level);
+        EnableGunLevel(level);
     }
     void Update()
     {
@@ -51,7 +57,9 @@ public class Gun : MonoBehaviour
                 {
                     closestDistance = distance;
                     closestBall = ball;
-                    targetBall = ball.GetComponent<Ball>();
+                    
+                        targetBall = ball.transform;
+                    
                 }
             }
 
@@ -64,8 +72,8 @@ public class Gun : MonoBehaviour
             if (Time.time >= nextFireTime)
             {
                 Fire();
-                fireRate = UpgradeManager.instance.GetFireRate();
-                nextFireTime = Time.time + 1f / fireRate;
+                nextFireTime = Time.time + 1f / (fireRate + UpgradeManager.instance.GetFireRate());
+                
             }
         }
     }
@@ -78,34 +86,88 @@ public class Gun : MonoBehaviour
         bullet.GetComponent<Bullet>().damage = damage;
         rb.AddForce(transform.right * shootForce, ForceMode2D.Impulse);
         Bullet b = bullet.GetComponent<Bullet>();
-        b.SetTarget(targetBall.transform.position, targetBall.transform);
+        b.SetTarget(targetBall.position, targetBall);
         SoundManager.Instance.Play(level);
     }
 
-    public void MergeWith(Gun other)
+    public void UpdateCritChance(float f)
     {
-        // Deactivate the old model
-        if (level - 1 < gunModels.Length)
-        {
-            gunModels[level - 1].SetActive(false);            
-        }
-
-        // Merge the guns: delete the other gun and increase the level of this one
-        GunSelectionGridManager.Instance.guns.Remove(other);
-        Destroy(other.gameObject);
-        GunSelectionGridManager.Instance.CheckForHigherLevel(level+1);
-        level++;       
-
-        // Activate the new model
-        if (level - 1 < gunModels.Length)
-        {
-            gunModels[level - 1].SetActive(true);
-        }
-        damage = Mathf.RoundToInt(UpgradeManager.instance.GetGunDamage(level));
-        fireRate = UpgradeManager.instance.GetGunFireRate(level);
-        detectionRadius = UpgradeManager.instance.GetGunRange(level);
+        critChance = f;
     }
 
+    public void UpdateCloneChance(float f)
+    {
+        cloneChance = f;
+    }
+
+    public void UpdateDamage(int f)
+    {
+        damage += f;
+    }
+    public void MergeWith(Gun other)
+    {
+       
+        // Merge the guns: delete the other gun and increase the level of this one
+        GunSelectionGridManager.Instance.guns.Remove(other);
+        if (!other.isInGrid)
+        {
+            other.currentPlacementPoint.isOccupied = false;
+        }
+        Destroy(other.gameObject);
+        GunSelectionGridManager.Instance.CheckForHigherLevel(level+1, this);
+        level++;
+        
+        EnableGunLevel(level);
+        if (TutorialManager.Instance != null)
+        {
+            if (TutorialManager.Instance.isEnabled)
+            {
+                TutorialManager.Instance.NextStep();
+            }
+        }
+        /*  // Activate the new model
+          if (level - 1 < gunModels.Length)
+          {
+              gunModels[level - 1].SetActive(true);
+          }
+
+          damage = Mathf.RoundToInt(UpgradeManager.instance.GetGunDamage(level));
+          fireRate = UpgradeManager.instance.GetGunFireRate(level);
+          detectionRadius = UpgradeManager.instance.GetGunRange(level);*/
+    }
+
+   public void EnableGunLevel(int lev)
+    {
+        foreach(GameObject g in gunModels)
+        {
+            g.SetActive(false);
+        }
+        if (lev - 1 < gunModels.Length)
+        {
+            gunModels[lev - 1].SetActive(true);
+        }
+
+        damage = Mathf.RoundToInt(gunDamages[lev-1]);
+        fireRate = Mathf.RoundToInt(gunFireRates[lev - 1]);
+        detectionRadius = Mathf.RoundToInt(ranges[lev - 1]);
+        level = lev;
+        if (currentPlacementPoint != null)
+        {
+            currentPlacementPoint.levelText.text = level + "";
+            currentPlacementPoint.levelText.gameObject.SetActive(true);
+        }
+    }
+    public void ScaleGunToNormal()
+    {
+        foreach(GameObject g in gunModels)
+        {
+            g.transform.DOScale(Vector3.one, 0.5f);
+        }
+    }
+    public void ScaleGunToGrid()
+    {
+
+    }
 
     void OnTriggerEnter2D(Collider2D collision)
     {

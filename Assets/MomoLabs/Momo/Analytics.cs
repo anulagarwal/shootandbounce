@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-//using GameAnalyticsSDK;
+using GameAnalyticsSDK;
 using DevToDev.Analytics;
 
 
@@ -51,8 +51,8 @@ namespace Momo
             appSessionCount = PlayerPrefs.GetInt("appSession", 0);
             level = PlayerPrefs.GetInt("level", 1);
           
-         //   GameAnalytics.NewDesignEvent("session", appSessionCount);
-
+           GameAnalytics.NewDesignEvent("session", appSessionCount);
+            GameAnalytics.Initialize();
 
             dayNumber = PlayerPrefs.GetInt("dayNumber", 0);
         }
@@ -97,11 +97,14 @@ namespace Momo
         {
          //   TinySauce.OnGameStarted(levelNumber + "");
             level = levelNumber;
+            GameAnalytics.NewProgressionEvent(GAProgressionStatus.Start, "level" + levelNumber);
         }
 
         public void WinLevel()
         {
-        //    TinySauce.OnGameFinished(true,0);
+            //    TinySauce.OnGameFinished(true,0);
+            GameAnalytics.NewProgressionEvent(GAProgressionStatus.Complete, "level" + level);
+
         }
 
         public void LoseLevel()
@@ -117,11 +120,7 @@ namespace Momo
             s.Add("sessionLevel", sd.lastLevel);
           //  TinySauce.TrackCustomEvent("session", s);
 
-            var parameters = new DTDCustomEventParameters();
-            parameters.Add(key: "sessionNumber", value: sd.sessionNumber);
-            parameters.Add(key: "sessionLength", value: sd.sessionLength);
-            parameters.Add(key: "sessionLevel", value: sd.lastLevel);
-            DTDAnalytics.CustomEvent(eventName: "session", parameters: parameters);
+           
 
         }
 
@@ -133,11 +132,7 @@ namespace Momo
             l.Add("time", ld.timeSpent);
         //    TinySauce.TrackCustomEvent("level", l) ;
 
-            var parameters = new DTDCustomEventParameters();
-            parameters.Add(key: "levelNumber", value: ld.levelNumber);
-            parameters.Add(key: "moves", value: ld.numberOfMoves);
-            parameters.Add(key: "time", value: ld.timeSpent);
-            DTDAnalytics.CustomEvent(eventName: "level", parameters: parameters);
+           
         }
 
         public void TrackDay(DayData dd)
@@ -147,10 +142,7 @@ namespace Momo
             d.Add("numberOfSessions", dd.numberOfSessions);
       //      TinySauce.TrackCustomEvent("level", d);
 
-            var parameters = new DTDCustomEventParameters();
-            parameters.Add(key: "dayNumber", value: dd.DayNumber);
-            parameters.Add(key: "numberOfSessions", value: dd.numberOfSessions);
-            DTDAnalytics.CustomEvent(eventName: "day", parameters: parameters);
+          
 
      //       TinySauce.TrackCustomEvent("level", d);
         }

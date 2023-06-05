@@ -231,6 +231,7 @@ GameObject:
   - component: {fileID: 275932737}
   - component: {fileID: 275932742}
   - component: {fileID: 1010419467286117428}
+  - component: {fileID: 261998245830917926}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -274,6 +275,7 @@ MonoBehaviour:
   currentState: 0
   numberOfMoves: 0
   levelLength: 0
+  nextLevelRequirement: 0
 --- !u!114 &3267584594690214020
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -286,10 +288,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e337592aaa0542688521898707d0a5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  source: {fileID: 1115810696}
   sounds:
-  - sound: {fileID: 8300000, guid: 229f6dfe742074fdbbf0d99a0ad8fcdb, type: 3}
+  - soundClip: {fileID: 0}
     type: 0
+  poolSize: 5
+  soundVolume: 1
 --- !u!114 &3267584594690214021
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -397,6 +400,87 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1acee8dd9edad4c018d8d1e0854e5a83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &261998245830917926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3267584594690214023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7058c420cbd6f49068293fce16cd090a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dropValueCosts: 190000003200000064000000c8000000f4010000ee020000000000008403000000000000dc05000000000000ca080000b80b000000000000a60e0000941100000000000088130000641900004c1d00003a200000000000002823000004290000983a0000
+  dropSpeedCosts: 190000003200000064000000c8000000f401000000000000ee020000000000008403000000000000dc050000d0070000be0a0000b20c0000000000003c0f0000941100000000000076160000641900004c1d00003a200000000000002823000004290000
+  fireRateCosts: 64000000c8000000f4010000ee02000000000000e204000000000000c40900000000000088130000701700004c1d0000282300000000000004290000d4300000983a0000803e000000000000384a0000f0550000b45f0000000000006c6b000048710000
+  dropValues: 0200000004000000060000000d0000001200000019000000220000002d0000003c0000004b000000640000007d00000096000000b4000000e1000000fa000000220100005e010000a9010000f40100002602000080020000d50200002003000084030000
+  dropSpeeds:
+  - 0.25
+  - 0.28
+  - 0.3
+  - 0.32
+  - 0.34
+  - 0.37
+  - 0.4
+  - 0.425
+  - 0.44
+  - 0.48
+  - 0.54
+  - 0.6
+  - 0.68
+  - 0.73
+  - 0.77
+  - 0.82
+  - 0.85
+  - 0.89
+  - 0.94
+  - 0.97
+  - 1
+  - 1.1
+  - 1.2
+  - 1.3
+  - 1.5
+  fireRates:
+  - 0.3
+  - 0.35
+  - 0.38
+  - 0.42
+  - 0.45
+  - 0.49
+  - 0.55
+  - 0.6
+  - 0.65
+  - 0.7
+  - 0.73
+  - 0.78
+  - 0.83
+  - 0.87
+  - 0.9
+  - 0.98
+  - 1.1
+  - 1.2
+  - 1.3
+  - 1.5
+  - 1.7
+  - 1.9
+  - 2.1
+  - 2.2
+  - 2.5
+  dropValueUpgradeButton: {fileID: 0}
+  dropSpeedUpgradeButton: {fileID: 0}
+  fireRateUpgradeButton: {fileID: 0}
+  valueAdIcon: {fileID: 0}
+  speedAdIcon: {fileID: 0}
+  fireRateAdIcon: {fileID: 0}
+  upgradeDropValueCostText: {fileID: 0}
+  upgradeDropSpeedCostText: {fileID: 0}
+  upgradeFireRateCostText: {fileID: 0}
+  dropSpeedLevel: {fileID: 0}
+  dropValueLevel: {fileID: 0}
+  fireFasterLevel: {fileID: 0}
+  bs: {fileID: 0}
 --- !u!1001 &9044062594721642594
 PrefabInstance:
   m_ObjectHideFlags: 0

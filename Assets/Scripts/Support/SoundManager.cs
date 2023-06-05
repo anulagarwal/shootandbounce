@@ -15,7 +15,12 @@ public class SoundManager : MonoBehaviour
         Pop,
         Pistol,
         ShotGun,
-        Maverick
+        Lvl3,
+        Lvl4,
+        Lvl5,
+        Lvl6,
+        Lvl7
+
         // Add more sound types here
     }
 
@@ -24,6 +29,7 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private List<Sound> sounds;
     [SerializeField] private int poolSize = 5;
     private Queue<AudioSource> audioSourcePool;
+    public float soundVolume =1f;
 
     private void Awake()
     {
@@ -35,6 +41,10 @@ public class SoundManager : MonoBehaviour
         Instance = this;
 
         InitializeAudioSourcePool();
+    }
+    public void UpdateSound(float f)
+    {
+        soundVolume = f;
     }
 
     private void InitializeAudioSourcePool()
@@ -70,7 +80,25 @@ public class SoundManager : MonoBehaviour
         }
         if (level == 3)
         {
-            type = SoundType.Maverick;
+            type = SoundType.Lvl3;
+        }
+        if (level == 4)
+        {
+            type = SoundType.Lvl4;
+        }
+
+        if (level == 5)
+        {
+            type = SoundType.Lvl5;
+        }
+
+        if (level == 6)
+        {
+            type = SoundType.Lvl6;
+        }
+        if (level == 7)
+        {
+            type = SoundType.Lvl7;
         }
         if (PlayerPrefs.GetInt("sound", 1) == 1)
         {
@@ -78,7 +106,7 @@ public class SoundManager : MonoBehaviour
             AudioSource availableSource = GetAvailableAudioSource();
             availableSource.clip = clipToPlay;
             availableSource.Play();
-            availableSource.volume = 0.25f;
+            availableSource.volume = (soundVolume/2);
         }
     }
 

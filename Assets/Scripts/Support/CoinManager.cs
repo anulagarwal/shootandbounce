@@ -36,6 +36,7 @@ public class CoinManager : MonoBehaviour
         startCoins = PlayerPrefs.GetInt("coins", startCoins);
         currentCoins = startCoins;
         UIManager.Instance.UpdateCurrentCoins(currentCoins);
+        AddCoins(0, Vector3.zero);
     }
 
     // Update is called once per frame
@@ -66,7 +67,11 @@ public class CoinManager : MonoBehaviour
         currentCoins += v;
         PlayerPrefs.SetInt("coins", currentCoins);
         UIManager.Instance.UpdateCurrentCoins(currentCoins);
-      //  UIManager.Instance.SendPoolTo(true, worldPos);
+        if (currentCoins >= GameManager.Instance.nextLevelRequirement)
+        {
+            UIManager.Instance.ActiveNextLevel(true);
+        }
+        //  UIManager.Instance.SendPoolTo(true, worldPos);
     }
 
 
@@ -78,7 +83,14 @@ public class CoinManager : MonoBehaviour
             PlayerPrefs.SetInt("coins", currentCoins);
             UIManager.Instance.UpdateCurrentCoins(currentCoins);
             UIManager.Instance.SendPoolTo(false, worldPos);
-
+            if(currentCoins>= GameManager.Instance.nextLevelRequirement)
+            {
+                UIManager.Instance.ActiveNextLevel(true);
+            }
+            else
+            {
+                UIManager.Instance.ActiveNextLevel(false);
+            }
             return true;
         }
         else
@@ -94,6 +106,14 @@ public class CoinManager : MonoBehaviour
             currentCoins -= v;
             PlayerPrefs.SetInt("coins", currentCoins);
             UIManager.Instance.UpdateCurrentCoins(currentCoins);
+            if (currentCoins >= GameManager.Instance.nextLevelRequirement)
+            {
+                UIManager.Instance.ActiveNextLevel(true);
+            }
+            else
+            {
+                UIManager.Instance.ActiveNextLevel(false);
+            }
             return true;
         }
         else

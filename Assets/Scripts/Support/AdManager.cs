@@ -57,5 +57,41 @@ public class AdManager : MonoBehaviour
     {
         GetComponent<SceneHandler>().ChangeTheLevel();
     }
-  
+
+    public void WatchRewardedAdForDamageUpgrade()
+    {
+        CrazyAds.Instance.beginAdBreakRewarded(DamageUpgradeBack);
+    }
+
+    void DamageUpgradeBack()
+    {
+        GunSelectionGridManager.Instance.CallBackRewardedAd();
+    }
+
+    public void ShowAdNewLevel()
+    {
+        CrazyAds.Instance.beginAdBreak(ChangeLevel);
+        Time.timeScale = 0f;
+    }
+
+    public void ShowRewardedAdClaimExtra()
+    {
+        GameManager.Instance.PauseGame();
+        CrazyAds.Instance.beginAdBreakRewarded(AdClaimExtraBack);
+
+    }
+
+    public void AdClaimExtraBack()
+    {
+        GameManager.Instance.UnPause();
+        CoinManager.Instance.AddCoins(UIManager.Instance.GetComponent<EnableDisableGameObject>().currentAmount, Vector3.zero);
+        UIManager.Instance.GetComponent<EnableDisableGameObject>().ResetAndDisableGameObject();
+        
+    }
+    void ChangeLevel()
+    {
+        Time.timeScale = 1f;
+
+        GameManager.Instance.WinLevel();
+    }
 }

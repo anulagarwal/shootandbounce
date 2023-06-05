@@ -35,14 +35,25 @@ public class Bullet : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         // Check if we hit a ball
-        Ball ball = collision.gameObject.GetComponent<Ball>();
-        if (ball != null)
+        if (collision.gameObject.tag == "Ball")
         {
-            // We hit a ball! Deal damage
-            ball.TakeDamage(damage);
-
-            // Destroy the bullet
+            Ball ball = collision.gameObject.GetComponent<Ball>();
+            if (ball != null)
+            {
+                // We hit a ball! Deal damage
+                ball.TakeDamage(damage);
+                
+            }
         }
+        if (collision.gameObject.tag == "Bomb")
+        {
+            Bomb b = collision.gameObject.GetComponent<Bomb>();
+            if (b != null)
+            {
+                b.TakeDamage(damage);
+            }
+        }
+
         Destroy(Instantiate(collisionVFX, collision.contacts[0].point, Quaternion.identity),collisionDestroyDelay);
         Destroy(gameObject);
 

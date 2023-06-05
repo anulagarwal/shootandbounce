@@ -6,6 +6,17 @@ using TMPro;
 using DG.Tweening;
 using System.Threading.Tasks;
 
+[System.Serializable]
+public class GunUpgrade
+{
+    public GameObject g;
+    public Image gunImage;
+    public Text dmg;
+    public Button critUpgrade;
+    public Button dmgUpgrade;
+    public Button clomeUpgrade;
+}
+
 public class UIManager : MonoBehaviour
 {
     #region Singleton
@@ -42,6 +53,12 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject pausePanel = null;
     [SerializeField] private GameObject newGunPanel = null;
     [SerializeField] private List<GameObject> newGuns = null;
+    [SerializeField] private List<GunUpgrade> gunUpgrades = null;
+    [SerializeField] private Slider vol = null;
+    [SerializeField] private EnableDisableGameObject claimButton = null;
+
+
+
 
 
 
@@ -51,6 +68,12 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Text winLevelText = null;
     [SerializeField] private Text loseLevelText = null;
     [SerializeField] private Text debugText = null;
+    [SerializeField] private Text dropSpeedLevel = null;
+    [SerializeField] private Text dropValueLevel = null;
+    [SerializeField] private Text fireFasterLevel = null;
+
+
+
 
     [Header("Settings")]
     [SerializeField] private GameObject settingsBox;
@@ -60,6 +83,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Sprite enabledSFX;
     [SerializeField] private Button SFX;
     [SerializeField] private Button vibration;
+    [SerializeField] private Button nextLevelButton;
+
 
     [Header("Reward/Coins")]
     [SerializeField] List<Text> allCurrentCoins = null;
@@ -106,6 +131,8 @@ public class UIManager : MonoBehaviour
         {
             SFX.image.sprite = enabledSFX;
         }
+        UpdateSoundSlider();
+        UpdateSoundVolume();
     }
     #endregion
 
@@ -168,9 +195,19 @@ public class UIManager : MonoBehaviour
         }
     }
 
+   
+    public void ActiveNextLevel(bool active)
+    {
+        nextLevelButton.interactable = active;
+    }
+
     public void UpdateLevelReward(int v)
     {
         levelReward.text = "+" + v + "";
+    }
+    public void ResetClaimButton()
+    {
+        GetComponent<EnableDisableGameObject>().ResetAndDisableGameObject();
     }
     #endregion
 
@@ -192,9 +229,15 @@ public class UIManager : MonoBehaviour
 
     public void OnClickWin()
     {
-        GameManager.Instance.WinLevel();
+        AdManager.Instance.ShowAdNewLevel();        
     }
-
+    public void OnClickClaimExtra()
+    {
+        //show ad
+        //Pause
+        //on ad complete give coins
+        AdManager.Instance.ShowRewardedAdClaimExtra();
+    }
     public void OnClickSFXButton()
     {
         if (PlayerPrefs.GetInt("sound", 1) == 1)
@@ -207,6 +250,10 @@ public class UIManager : MonoBehaviour
             PlayerPrefs.SetInt("sound", 1);
             SFX.image.sprite = enabledSFX;
         }
+    }
+    public void OnClick_BackToHomeButton()
+    {
+        GameManager.Instance.GoHome();
     }
 
     public async void SendPoolTo(bool add, Vector3 worldPos)
@@ -227,6 +274,8 @@ public class UIManager : MonoBehaviour
         {
             g.SetActive(false);
         }
+
+        GunSelectionGridManager.Instance.PopupClosed();
     }
 
 
@@ -259,6 +308,30 @@ public class UIManager : MonoBehaviour
             g.SetActive(false);
         }
         newGuns[level - 1].SetActive(true);
+    }
+
+    public void ActiveNewGunCritUpgrade(bool active)
+    {
+
+    }
+    public void ActiveNewGunDamageUpgrade(bool active)
+    {
+        GunSelectionGridManager.Instance.WatchedRewardedAd(3);
+    }
+    public void ActiveNewGunCloneUpgrade(bool active)
+    {
+
+    }
+    public void UpdateSoundSlider()
+    {
+        vol.value = PlayerPrefs.GetFloat("soundvalue", 1f);
+        UpdateSoundVolume();
+    }
+    public void UpdateSoundVolume()
+    {
+        SoundManager.Instance.UpdateSound(vol.value);
+        PlayerPrefs.SetFloat("soundvalue", vol.value);
+
     }
 
     #region Spawn Texts

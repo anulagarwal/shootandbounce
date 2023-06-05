@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 194438710711278736}
   m_Layer: 6
   m_Name: Ball
-  m_TagString: Untagged
+  m_TagString: Ball
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -52,33 +52,63 @@ MonoBehaviour:
   growthRate: 0.01
   valueText: {fileID: 2577448091604439397}
   health: 0
-  maxVelocity: 0
+  maxVelocity: 20
   colorRanges:
   - min: 0
-    max: 10
+    max: 9
     color: {r: 0.34509802, g: 0.59685457, b: 1, a: 1}
-  - min: 11
-    max: 20
+  - min: 10
+    max: 19
     color: {r: 0.34509802, g: 1, b: 0.9124932, a: 1}
-  - min: 21
-    max: 30
+  - min: 20
+    max: 29
     color: {r: 0.34509802, g: 1, b: 0.5236603, a: 1}
-  - min: 31
-    max: 40
+  - min: 30
+    max: 39
     color: {r: 0.71105134, g: 1, b: 0.34509802, a: 1}
-  - min: 41
-    max: 50
+  - min: 40
+    max: 49
     color: {r: 1, g: 0.8789868, b: 0.34509802, a: 1}
-  - min: 51
-    max: 60
+  - min: 50
+    max: 59
     color: {r: 1, g: 0.554935, b: 0.34509802, a: 1}
-  - min: 61
-    max: 70
+  - min: 60
+    max: 69
     color: {r: 1, g: 0.34509802, b: 0.60381305, a: 1}
+  - min: 70
+    max: 79
+    color: {r: 1, g: 0.34509802, b: 0.81782556, a: 1}
+  - min: 80
+    max: 89
+    color: {r: 0.8590242, g: 0.34509802, b: 1, a: 1}
+  - min: 90
+    max: 99
+    color: {r: 0.6634419, g: 0.34509802, b: 1, a: 1}
+  - min: 100
+    max: 125
+    color: {r: 0.4144709, g: 0.23113209, b: 1, a: 1}
+  - min: 126
+    max: 200
+    color: {r: 0.1475973, g: 0.10568706, b: 0.8962264, a: 1}
+  - min: 201
+    max: 500
+    color: {r: 0.36541575, g: 0, b: 0.6415094, a: 1}
+  - min: 501
+    max: 999
+    color: {r: 0.59905046, g: 0, b: 0.6431373, a: 1}
+  - min: 1000
+    max: 1999
+    color: {r: 0.6226415, g: 0, b: 0.3056007, a: 1}
+  - min: 2000
+    max: 5000
+    color: {r: 0.8207547, g: 0.0072913994, b: 0, a: 1}
   spriteRenderer: {fileID: 1956056951758219961}
   minInitialForce: 3
   maxInitialForce: 9
   defaultMass: 0
+  target: {fileID: 0}
+  coinPrefab: {fileID: 4295667701494377315, guid: 7064e9b5dda8f4468abee358a4d2595b, type: 3}
+  AwesomeText: {fileID: 869433376574906791, guid: 3bb3bc1c20a994241aff2cf2829c0f4e, type: 3}
 --- !u!50 &3141023326199724925
 Rigidbody2D:
   serializedVersion: 4
@@ -98,7 +128,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!212 &1956056951758219961
 SpriteRenderer:

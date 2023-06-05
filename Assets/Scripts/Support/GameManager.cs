@@ -37,6 +37,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameState currentState;
     [SerializeField] private int numberOfMoves;
     [SerializeField] private float levelLength;
+    [SerializeField] public int nextLevelRequirement;
+
 
     public int CurrentScore => currentScore;
     public int CurrentLevel => currentLevel;
@@ -99,8 +101,8 @@ public class GameManager : MonoBehaviour
         if (currentState == GameState.InGame)
         {
             //confetti.SetActive(true);
-            Invoke("ShowWinUI", 1.4f);
-
+            Invoke("ChangeLevel", 1.4f);
+            CoinManager.Instance.SubtractCoins(nextLevelRequirement);
             currentState = GameState.Win;
 
             PlayerPrefs.SetInt("level", currentLevel + 1);
@@ -126,7 +128,14 @@ public class GameManager : MonoBehaviour
             //Send Data
             Analytics.Instance.WinLevel();
 
+
         }
+    }
+
+    public void GoHome()
+    {
+        UnPause();
+        SceneManager.LoadScene("MainMenu");
     }
 
     public void LoseLevel()
@@ -150,7 +159,20 @@ public class GameManager : MonoBehaviour
 
     public void ChangeLevel()
     {
-        SceneManager.LoadScene("Core");
+        //SceneManager.LoadScene("Core");
+        if (currentLevel > 2)
+        {
+            int newId = currentLevel % 2;
+            if (newId == 0)
+            {
+                newId = 2;
+            }
+            SceneManager.LoadScene("Level " + (newId));
+        }
+        else
+        {
+            SceneManager.LoadScene("Level " + currentLevel);
+        }
     }
     #endregion
 

@@ -16,24 +16,30 @@ public class Ball : MonoBehaviour
     public float growthRate = 0.1f; // The rate at which the ball grows in size
     public TextMeshPro valueText; // Assign in Inspector
     public int health;
-    public float maxVelocity;
+    public float maxVelocity = 5f;
     public List<ColorRange> colorRanges;
     [SerializeField] SpriteRenderer spriteRenderer;
 
     public float minInitialForce = 1.0f; // minimum initial force
     public float maxInitialForce = 3.0f; // maximum initial force
 
+
     public float defaultMass;
     Sequence sequence;
     public Transform target;
+    Rigidbody2D rb ;
+
+    [SerializeField] GameObject coinPrefab;
+    [SerializeField] GameObject AwesomeText;
+
+
 
     private void Start()
     {
         // Initialize the value text
         valueText.text = value.ToString();
-        
+        rb = GetComponent<Rigidbody2D>();
         // Apply an initial force
-        Rigidbody2D rb = GetComponent<Rigidbody2D>();
         if (rb != null)
         {
             // Add some randomness to the force
@@ -56,17 +62,52 @@ public class Ball : MonoBehaviour
             }
         }
     }
-    
 
+    private void FixedUpdate()
+    {
+        if (rb.velocity.magnitude > maxVelocity)
+        {
+            rb.velocity = rb.velocity.normalized * maxVelocity;
+        }
+    }
     public void SetValue(int value)
     {
         this.value = value;
         valueText.text = GameManager.Instance.FormatNumber(value);
-        //transform.localScale = Vector3.one;
+        
         health = value;
 
+        Vector3 v = Vector3.zero;
+        v = new Vector3(transform.localScale.x + growthRate, transform.localScale.y + growthRate, transform.localScale.z + growthRate);
+        if (value >= 100)
+        {
+            valueText.fontSize = 18;
+        }
+        if (value >= 1000)
+        {
+            valueText.fontSize = 15f;
+            v = new Vector3(transform.localScale.x + (growthRate / 2), transform.localScale.y + (growthRate / 2), transform.localScale.z + (growthRate / 2));
+        }
+        transform.localScale = v;
+    }
+    private void OnMouseDown()
+    {
+        KillBall();
     }
 
+    public void KillBall()
+    {
+        CoinManager.Instance.AddCoins(Mathf.RoundToInt(health), transform.position);
+        GameObject g = Instantiate(AwesomeText, transform.position, Quaternion.identity);
+        g.GetComponent<AwesomeText>().SetText(health);
+
+        // Spawn coins
+        for (int i = 0; i < 2; i++)
+        {
+            Destroy(Instantiate(coinPrefab, transform.position, Quaternion.identity), 10f);
+        }
+        Destroy(gameObject);
+    }
 
     private void OnDestroy()
     {
@@ -80,9 +121,19 @@ public class Ball : MonoBehaviour
 
         // Update the TextMesh Pro object with the new value
         valueText.text = value.ToString();
-
         // Scale up the ball over time
-        Vector3 v = new Vector3(transform.localScale.x + growthRate, transform.localScale.y + growthRate, transform.localScale.z + growthRate);
+        Vector3 v = Vector3.zero;
+       v = new Vector3(transform.localScale.x + growthRate, transform.localScale.y + growthRate, transform.localScale.z + growthRate);
+        if (value >= 100)
+        {
+            valueText.fontSize = 18;
+        }
+        if(value >= 1000)
+        {
+            valueText.fontSize = 15f;
+           v = new Vector3(transform.localScale.x + (growthRate/2), transform.localScale.y + (growthRate/2), transform.localScale.z + (growthRate/2));
+        }
+        
         sequence = DOTween.Sequence();
         sequence.Append(transform.DOScale(v, 1f).SetEase(Ease.OutBounce));
         
