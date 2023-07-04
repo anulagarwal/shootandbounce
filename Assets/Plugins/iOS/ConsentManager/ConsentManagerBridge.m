@@ -1,4 +1,3 @@
-
 #if defined(__has_include) && __has_include("UnityAppController.h")
 #import "UnityAppController.h"
 #else
@@ -84,8 +83,15 @@ const char *GetConsentStatus(void) {
     }
 }
 
+const char *GetIabConsentString() {
+    if (STKConsentManager.sharedManager.iabConsentString == NULL) {
+        return GetConstChar(@"EMPTY");
+    }
+    return GetConstChar(STKConsentManager.sharedManager.iabConsentString);
+}
+
 id GetConsent(void) {
-    if (gConsent) {
+    if (!gConsent) {
         gConsent = [ConsentBridge new];
     }
     return gConsent;
@@ -113,8 +119,8 @@ void SetStorage(const char *storage) {
 #pragma mark - Synchronisation
 
 void RequestConsentInfoUpdate(const char *appodealAppKey,
-                              ConsentInfoUpdatedCallback onConsentInfoUpdated,
-                              ConsentInfoUpdatedFailedCallback onFailedToUpdateConsentInfo) {
+                                ConsentInfoUpdatedCallback onConsentInfoUpdated,
+                                ConsentInfoUpdatedFailedCallback onFailedToUpdateConsentInfo) {
     if (appodealAppKey == NULL) {
         gCurrentError = [[ConsentManagerErrorBridge alloc] initWithCode:0
                                                               reason:@"Appodeal key can't be null"];

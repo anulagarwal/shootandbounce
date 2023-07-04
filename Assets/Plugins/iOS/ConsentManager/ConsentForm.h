@@ -1,4 +1,3 @@
-
 #import <Foundation/Foundation.h>
 #import "ConsentManagerErrorBridge.h"
 #import "ConsentBridge.h"
@@ -13,14 +12,13 @@ typedef void (ConsentFormCallbackClosed)(ConsentBridge *consent);
 
 FOUNDATION_EXPORT ConsentForm *GetConsentForm(void);
 FOUNDATION_EXPORT void WithListener(ConsentFormCallback onConsentFormLoaded,
-                                    ConsentFormCallbackError onConsentFormError,
-                                    ConsentFormCallback onConsentFormOpened,
-                                    ConsentFormCallbackClosed onConsentFormClosed);
+                                       ConsentFormCallbackError onConsentFormError,
+                                       ConsentFormCallback onConsentFormOpened,
+                                       ConsentFormCallbackClosed onConsentFormClosed);
 
 FOUNDATION_EXPORT ConsentForm *GetConsentForm(void);
 FOUNDATION_EXPORT void Load(void);
-FOUNDATION_EXPORT void ShowAsActivity(void);
-FOUNDATION_EXPORT void ShowAsDialog(void);
+FOUNDATION_EXPORT void Show(void);
 FOUNDATION_EXPORT bool IsLoaded(void);
 FOUNDATION_EXPORT bool IsShowing(void);
 

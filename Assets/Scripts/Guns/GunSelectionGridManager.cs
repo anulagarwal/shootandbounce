@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;  // required for using TextMeshPro
-using CrazyGames;
 using System.Linq;
 
 public class GunSelectionGridManager : MonoBehaviour
@@ -13,14 +12,16 @@ public class GunSelectionGridManager : MonoBehaviour
     public int gunCost = 10; // assign in Inspector
     private CoinManager currencyManager; // assign in Awake
     public List<int> gunCosts; // List of gun costs
-    private int currentGunIndex = 0; // The index of the current gun
+    public int currentGunIndex = 0; // The index of the current gun
     public TextMeshProUGUI gunCostText;
     public List<Gun> guns;
     public bool isPopupOpen;
     public Gun currentHighestLevelGun;
     public int highestLevelUnlocked=1;
-
+    public LayerMask placementLayer;
     int rewardedAdID;
+
+    public GameObject delete;
     #region Singleton
     private static GunSelectionGridManager _instance;
     public static GunSelectionGridManager Instance
@@ -94,7 +95,17 @@ public class GunSelectionGridManager : MonoBehaviour
     {
         spawnButton.interactable = active;
     }
+    public void BinActive(bool isNeeded)
+    {
+        delete.SetActive(isNeeded);
+    }
 
+    public void RemoveGun(Gun g)
+    {
+        guns.Remove(g);
+        Destroy(g.gameObject);
+        SaveManager.Instance.DoSaveGame();
+    }
     public void OnSpawnButtonClicked()
     {
         if (TutorialManager.Instance != null)
@@ -143,6 +154,46 @@ public class GunSelectionGridManager : MonoBehaviour
         }
     }
 
+    public void RestoreGuns(List<GunData> gd)
+    {
+        foreach (GunData g in gd)
+        {
+            GameObject newGun = Instantiate(gunPrefab, g.position, Quaternion.identity);
+            Gun gunComponent = newGun.GetComponent<Gun>();
+            gunComponent.EnableGunLevel(g.gunLevel);
+            guns.Add(gunComponent);
+
+            Collider2D hitCollider = Physics2D.OverlapPoint(g.position, placementLayer);
+            if (hitCollider != null)
+            {
+                PlacementPoint placementPoint = hitCollider.GetComponent<PlacementPoint>();
+
+                if (!placementPoint.isOccupied)
+                {
+                    gunComponent.transform.position = hitCollider.transform.position;
+                   
+                    placementPoint.isOccupied = true;
+
+                    if (gunComponent.currentPlacementPoint != null)
+                        gunComponent.currentPlacementPoint.isOccupied = false;
+                   
+                    gunComponent.currentPlacementPoint = placementPoint;
+                    if (gunComponent.currentPlacementPoint.isLocked)
+                    {
+                        gunComponent.currentPlacementPoint.UnlockQuick();
+                    }
+                    gunComponent.isPlaced = true;
+                    gunComponent.currentPlacementPoint.levelText.text = gunComponent.level + "";
+                    gunComponent.currentPlacementPoint.levelText.gameObject.SetActive(true);
+                    gunComponent.ScaleGunToNormal();
+                }
+            }
+        }
+    }
+
+
+
+
     bool WatchAdForPurchase()
     {
         // Implement the logic to determine when the player should be prompted to watch an ad
@@ -151,6 +202,7 @@ public class GunSelectionGridManager : MonoBehaviour
         return false;
     }
 
+    
     void SpawnGun(Transform point)
     {
         int x = GetGunSpawnLevel();
@@ -200,10 +252,10 @@ public class GunSelectionGridManager : MonoBehaviour
     {
         if(guns.Find(x=>x.level == lev) == null && lev > highestLevelUnlocked)
         {
-            CrazyEvents.Instance.HappyTime();
             UIManager.Instance.EnableNewGun(lev-1);
             currentHighestLevelGun = g;
             highestLevelUnlocked = lev;
+//            CrazyGames.CrazyEvents.Instance.HappyTime();
         }
     }
 
@@ -266,6 +318,16 @@ public class GunSelectionGridManager : MonoBehaviour
             case 7:
                 UpgradeManager.instance.UpgradeGunFireRateFree();
                 break;
+
+            case 8:
+                CoinManager.Instance.AddCoins(UIManager.Instance.GetComponent<EnableDisableGameObject>().currentAmount, Vector3.zero);
+                UIManager.Instance.GetComponent<EnableDisableGameObject>().ResetAndDisableGameObject();
+                break;
+
+            case 9:
+                UIManager.Instance.GetComponent<TimeScaleModifier>().StartIncreasingTimeScale();
+                UIManager.Instance.GetComponent<TimeSpeedUpgrade>().ResetAndDisableGameObject();
+                break;
         }
     }
 
@@ -305,6 +367,14 @@ public class GunSelectionGridManager : MonoBehaviour
 
             //Fire Rate Upgrade
             case 7:
+                AdManager.Instance.WatchRewardedAdForDamageUpgrade();
+                break;
+
+            case 8:
+                AdManager.Instance.WatchRewardedAdForDamageUpgrade();
+                break;
+
+            case 9:
                 AdManager.Instance.WatchRewardedAdForDamageUpgrade();
                 break;
         }

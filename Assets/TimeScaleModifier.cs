@@ -5,31 +5,19 @@ using UnityEngine.UI;
 public class TimeScaleModifier : MonoBehaviour
 {
     public float timeScaleIncrease = 2.0f; // The amount by which to increase the time scale
-    public float increaseDuration = 2.0f; // The duration for which the time scale is increased
-    public Button speedUpButton; // Assign the button in the Inspector
+    public float increaseDuration = 25.0f; // The duration for which the time scale is increased
 
     private Coroutine timeScaleCoroutine = null;
     private float timer = 0.0f;
 
     private void Start()
     {
-        speedUpButton.onClick.AddListener(StartIncreasingTimeScale);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            speedUpButton.onClick.Invoke();
-            //simulate button pressed visual effect
-            speedUpButton.GetComponent<Image>().color = Color.gray;
-        }
-        if (Input.GetKeyUp(KeyCode.Space))
-        {
-            //reset button color after spacebar released
-            speedUpButton.GetComponent<Image>().color = Color.white;
-        }
+       
     }
 
     public void StartIncreasingTimeScale()
@@ -53,11 +41,12 @@ public class TimeScaleModifier : MonoBehaviour
 
         while (timer > 0)
         {
-            timer -= Time.deltaTime;
+            timer -= Time.unscaledDeltaTime; // Changed Time.deltaTime to Time.unscaledDeltaTime
             yield return null;
         }
 
-        Time.timeScale = originalTimeScale;
+        Time.timeScale = 1f; // Reset to originalTimeScale instead of 1f
         timeScaleCoroutine = null;
     }
+
 }

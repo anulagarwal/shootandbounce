@@ -139,6 +139,7 @@ GameObject:
   - component: {fileID: 1369014027}
   - component: {fileID: 1369014026}
   - component: {fileID: 1369014025}
+  - component: {fileID: 7267081859311038580}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -187,8 +188,8 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
-  orthographic: 0
+  field of view: 121.28449
+  orthographic: 1
   orthographic size: 5
   m_Depth: -1
   m_CullingMask:
@@ -213,6 +214,26 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1369014024}
   m_Enabled: 1
+--- !u!114 &7267081859311038580
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1369014024}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bee787164e90d4d388db4bc17b0e9289, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetAspect: 1
+  targetOrthographicSize: 15.47
+  maxNarrowOrthographicSize: 19.4
+  minAspect: 0.486
+  maxAspect: 0.6
+  minOrthographicSize: 17.2
+  maxOrthographicSize: 13.81
+  cam: {fileID: 1369014026}
 --- !u!1 &3267584594690214023
 GameObject:
   m_ObjectHideFlags: 0
@@ -232,6 +253,7 @@ GameObject:
   - component: {fileID: 275932742}
   - component: {fileID: 1010419467286117428}
   - component: {fileID: 261998245830917926}
+  - component: {fileID: 3935968546953365003}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -480,7 +502,22 @@ MonoBehaviour:
   dropSpeedLevel: {fileID: 0}
   dropValueLevel: {fileID: 0}
   fireFasterLevel: {fileID: 0}
+  currentDropValueLevel: 0
+  currentDropSpeedLevel: 0
+  currentFireRateLevel: 0
   bs: {fileID: 0}
+--- !u!114 &3935968546953365003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3267584594690214023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 358c983848d814d40b7a1a5d33f1d2b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &9044062594721642594
 PrefabInstance:
   m_ObjectHideFlags: 0

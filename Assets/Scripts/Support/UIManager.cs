@@ -89,6 +89,7 @@ public class UIManager : MonoBehaviour
     [Header("Reward/Coins")]
     [SerializeField] List<Text> allCurrentCoins = null;
     [SerializeField] List<Transform> coins = null;
+    private int currentCoin = 0;
 
     [Header("Post Level")]
     [SerializeField] Button multiplyReward;
@@ -229,14 +230,14 @@ public class UIManager : MonoBehaviour
 
     public void OnClickWin()
     {
-        AdManager.Instance.ShowAdNewLevel();        
+        GameManager.Instance.WinLevel();       
     }
     public void OnClickClaimExtra()
     {
         //show ad
         //Pause
         //on ad complete give coins
-        AdManager.Instance.ShowRewardedAdClaimExtra();
+        GunSelectionGridManager.Instance.WatchedRewardedAd(8);
     }
     public void OnClickSFXButton()
     {
@@ -255,10 +256,68 @@ public class UIManager : MonoBehaviour
     {
         GameManager.Instance.GoHome();
     }
-
-    public async void SendPoolTo(bool add, Vector3 worldPos)
+    public void OnClick_ClaimSpeed()
     {
-        // Existing implementation
+        GunSelectionGridManager.Instance.WatchedRewardedAd(9);
+    }
+
+
+    public void SendPoolTo(bool add, Vector3 worldPos)
+    {
+        // Create a new DOTween sequence
+        DOTween.KillAll();
+        Sequence s = DOTween.Sequence();
+
+        foreach (DeathLine dl in FindObjectsOfType<DeathLine>())
+        {
+            dl.Rotate();
+        }
+        //s.Kill();
+        foreach(Transform c in coins)
+        {
+            c.transform.localPosition = Vector3.zero;
+        }
+        Vector3 screenEndPoint = Vector3.zero;
+        // Move each coin
+        for (int i = 0; i < 7; i++)
+        {
+            s.AppendCallback(() =>
+            {
+                // Get the next coin GameObject from the list and activate it
+                GameObject coin = coins[currentCoin].gameObject;
+                coin.SetActive(true);
+
+                if (add)
+                {
+                    // Convert the end point's world position to a screen position
+                     screenEndPoint = Camera.main.WorldToScreenPoint(worldPos);
+                }
+                else
+                {
+                     screenEndPoint = worldPos;
+                }
+
+                // Convert the screen position to a position relative to the canvas
+                Vector2 canvasEndPoint;
+                RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)coin.transform.parent, screenEndPoint, null, out canvasEndPoint);
+
+                // Move the coin to the end point
+                coin.transform.DOLocalMove(canvasEndPoint, 0.5f).OnComplete(() =>
+                {
+                    // Deactivate the coin when it reaches the end point
+                    coin.SetActive(false);
+                });
+
+                // Update the index of the current coin
+                currentCoin = (currentCoin + 1) % coins.Count;
+            });
+
+            // Add a delay before moving the next coin
+            s.AppendInterval(0.1f);
+        }
+
+        // Start the sequence
+        s.Play();
     }
 
     public void OnClickVibrateButton()

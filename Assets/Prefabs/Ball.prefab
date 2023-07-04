@@ -77,22 +77,22 @@ MonoBehaviour:
     color: {r: 1, g: 0.34509802, b: 0.60381305, a: 1}
   - min: 70
     max: 79
-    color: {r: 1, g: 0.34509802, b: 0.81782556, a: 1}
+    color: {r: 0.990566, g: 0.41585082, b: 0.8322611, a: 1}
   - min: 80
     max: 89
     color: {r: 0.8590242, g: 0.34509802, b: 1, a: 1}
   - min: 90
     max: 99
-    color: {r: 0.6634419, g: 0.34509802, b: 1, a: 1}
+    color: {r: 0.7546606, g: 0.5235849, b: 1, a: 1}
   - min: 100
     max: 125
-    color: {r: 0.4144709, g: 0.23113209, b: 1, a: 1}
+    color: {r: 0.6449989, g: 0.5330188, b: 1, a: 1}
   - min: 126
     max: 200
-    color: {r: 0.1475973, g: 0.10568706, b: 0.8962264, a: 1}
+    color: {r: 0.5330188, g: 0.58730644, b: 1, a: 1}
   - min: 201
     max: 500
-    color: {r: 0.36541575, g: 0, b: 0.6415094, a: 1}
+    color: {r: 0.76107347, g: 0.4481132, b: 1, a: 1}
   - min: 501
     max: 999
     color: {r: 0.59905046, g: 0, b: 0.6431373, a: 1}
@@ -170,7 +170,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: 47fe5f311f9284bf0a367427e800b8cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -301,7 +301,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 7374927986402738804, guid: c1482dbce654844b9ba1c753cbea5d80, type: 2}
+  - {fileID: -4918373443893110478, guid: e21d9fa883341484f8393b51730ca170, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -321,7 +321,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 3
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &2577448091604439397
 MonoBehaviour:
@@ -345,15 +345,15 @@ MonoBehaviour:
       m_Calls: []
   m_text: 5
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: c1482dbce654844b9ba1c753cbea5d80, type: 2}
-  m_sharedMaterial: {fileID: 7374927986402738804, guid: c1482dbce654844b9ba1c753cbea5d80, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: e21d9fa883341484f8393b51730ca170, type: 2}
+  m_sharedMaterial: {fileID: -4918373443893110478, guid: e21d9fa883341484f8393b51730ca170, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -370,8 +370,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 25
-  m_fontSizeBase: 25
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

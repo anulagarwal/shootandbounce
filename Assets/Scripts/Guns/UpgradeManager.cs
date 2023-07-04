@@ -43,134 +43,202 @@ public class UpgradeManager : MonoBehaviour
     [SerializeField] private TMP_Text dropValueLevel = null;
     [SerializeField] private TMP_Text fireFasterLevel = null;
 
-    private int currentDropValueLevel = 0;
-    private int currentDropSpeedLevel = 0;
-    private int currentFireRateLevel = 0;
+    public int currentDropValueLevel = 0;
+    public int currentDropSpeedLevel = 0;
+    public int currentFireRateLevel = 0;
 
 
 
     public BallSpawner bs;
 
+    public void RestoreUpgrades(List<UpgradeData> ud)
+    {
+        foreach(UpgradeData u in ud)
+        {
+            if (u.upgradeName == "FireRate")
+            {
+                if (u.level > 0)
+                {
+                    for (int i = 0; i < u.level; i++)
+                    {
+                        UpgradeGunFireRateFree();
+                    }
+                }
+            }
+
+            if(u.upgradeName == "DropSpeed")
+            {
+                if (u.level > 0)
+                {
+                    for (int i = 0; i < u.level; i++)
+                    {
+                        UpgradeBallDropSpeedFree();
+                    }
+                }
+            }
+
+            if(u.upgradeName == "DropValue")
+            {
+                if (u.level > 0)
+                {
+                    for (int i = 0; i < u.level; i++)
+                    {
+                        UpgradeBallDropValueFree();
+                    }
+                }
+            }
+            if(u.upgradeName == "BuyGun")
+            {
+                if (u.level > 0)
+                {
+                    GunSelectionGridManager.Instance.currentGunIndex = u.level;
+                }
+            }    
+        }
+    }
+
+    public void UpgradeBallDropValueAd()
+    {
+        GunSelectionGridManager.Instance.WatchedRewardedAd(6);
+    }
+
+    public void BallValueFunction()
+    {
+        currentDropValueLevel++;
+        upgradeDropValueCostText.text = currentDropValueLevel < dropValueCosts.Count ? "DROP VALUE \n" + "$" + dropValueCosts[currentDropValueLevel].ToString() : "MAX";
+        dropValueLevel.text = "LVL " + (currentDropValueLevel + 1) + "";
+        SaveManager.Instance.DoSaveGame();
+    }
     public void UpgradeBallDropValue()
     {
-        if (currentDropValueLevel >= dropValueCosts.Count)
+       if (currentDropValueLevel >= dropValueCosts.Count)
         {
             return;
         }
-        if (dropValueCosts[currentDropValueLevel] == 0)
+        if (currentDropValueLevel%3 != 0)
         {
-            //Watch Ad
-            GunSelectionGridManager.Instance.WatchedRewardedAd(6);
+            valueAdIcon.SetActive(false);          
+        }
+        
+        if (currentDropValueLevel < dropValueCosts.Count && CoinManager.Instance.SubtractCoins(dropValueCosts[currentDropValueLevel], dropValueUpgradeButton.transform.position, false))
+        {
+            BallValueFunction();
+        }
+       
+        if (currentDropValueLevel >= dropValueCosts.Count)
+        {
+            valueAdIcon.SetActive(false);
+
             return;
+        }
+        if (currentDropValueLevel%3 == 0)
+        {
+            valueAdIcon.SetActive(true);
         }
         else
         {
             valueAdIcon.SetActive(false);
         }
-
-        if (currentDropValueLevel < dropValueCosts.Count && CoinManager.Instance.SubtractCoins(dropValueCosts[currentDropValueLevel]))
-        {
-            currentDropValueLevel++;
-            upgradeDropValueCostText.text = currentDropValueLevel < dropValueCosts.Count ? "DROP VALUE \n" + "$" + dropValueCosts[currentDropValueLevel].ToString() : "MAX";
-            dropValueLevel.text = "LVL " + (currentDropValueLevel + 1) + "";
-        }
-
-        if(currentDropValueLevel>= dropValueCosts.Count)
-        {
-            return;
-        }
-        if (dropValueCosts[currentDropValueLevel] == 0)
-        {
-            upgradeDropValueCostText.text = "DROP VALUE \n" + "FREE";
-            valueAdIcon.SetActive(true);
-        }
-
+       
+       
     }
     public void UpgradeBallDropValueFree()
     {
         if (currentDropValueLevel >= dropValueCosts.Count)
         {
+            valueAdIcon.SetActive(false);
             return;
         }
         if (currentDropValueLevel < dropValueCosts.Count)
         {
-            currentDropValueLevel++;
-            upgradeDropValueCostText.text = currentDropValueLevel < dropValueCosts.Count ? "DROP VALUE \n" + "$" + dropValueCosts[currentDropValueLevel].ToString() : "MAX";
-            dropValueLevel.text = "LVL " + (currentDropValueLevel + 1) + "";
-
+            BallValueFunction();
         }
-        if (dropValueCosts[currentDropValueLevel] == 0)
+        if (currentDropValueLevel >= dropValueCosts.Count)
         {
-            upgradeDropValueCostText.text = "DROP VALUE \n" + "FREE";
+            valueAdIcon.SetActive(false);
+            return;
+        }
+        if (currentDropValueLevel%3 == 0)
+        {
             valueAdIcon.SetActive(true);
         }
         else
         {
             valueAdIcon.SetActive(false);
-        }       
+        }
+
+       
+    }
+
+    public void UpgradeBallDropSpeedAd()
+    {
+        GunSelectionGridManager.Instance.WatchedRewardedAd(5);
+    }
+    public void BallSpeedFunction()
+    {
+        currentDropSpeedLevel++;
+        upgradeDropSpeedCostText.text = currentDropSpeedLevel < dropSpeedCosts.Count ? "DROP SPEED \n" + "$" + dropSpeedCosts[currentDropSpeedLevel].ToString() : "MAX";
+        bs.spawnRate = GetDropSpeed();
+        dropSpeedLevel.text = "LVL " + (currentDropSpeedLevel + 1) + "";
+        SaveManager.Instance.DoSaveGame();
+
     }
 
     public void UpgradeBallDropSpeed()
     {
-        if(currentDropSpeedLevel>= dropSpeedCosts.Count)
+        if (currentDropSpeedLevel >= dropSpeedCosts.Count)
         {
+            speedAdIcon.SetActive(false);
             return;
         }
-        if (dropSpeedCosts[currentDropSpeedLevel] == 0)
+        if (dropSpeedCosts[currentDropSpeedLevel] != 0)
         {
-            //Watch Ad
-            GunSelectionGridManager.Instance.WatchedRewardedAd(5);
+            speedAdIcon.SetActive(false);
+            
+        }
+
+        if (currentDropSpeedLevel < dropSpeedCosts.Count && CoinManager.Instance.SubtractCoins(dropSpeedCosts[currentDropSpeedLevel], dropSpeedUpgradeButton.transform.position, false))
+        {
+            BallSpeedFunction();
+        }
+        if (currentDropSpeedLevel >= dropSpeedCosts.Count)
+        {
+            speedAdIcon.SetActive(false);
             return;
+        }
+        if (currentDropSpeedLevel%3 == 0)
+        {
+            speedAdIcon.SetActive(true);
         }
         else
         {
             speedAdIcon.SetActive(false);
         }
-        if (currentDropSpeedLevel < dropSpeedCosts.Count && CoinManager.Instance.SubtractCoins(dropSpeedCosts[currentDropSpeedLevel]))
-        {
-            currentDropSpeedLevel++;
-            upgradeDropSpeedCostText.text = currentDropSpeedLevel < dropSpeedCosts.Count ? "DROP SPEED \n" + "$" +dropSpeedCosts[currentDropSpeedLevel].ToString() : "MAX";
-            bs.spawnRate = GetDropSpeed();
-            dropSpeedLevel.text = "LVL " + (currentDropSpeedLevel + 1) + "";
-        }
 
-        if (currentDropSpeedLevel >= dropSpeedCosts.Count)
-        {
-            return;
-        }
-        if (dropSpeedCosts[currentDropSpeedLevel] == 0)
-        {
 
-            upgradeDropSpeedCostText.text = "DROP SPEED \n" + "FREE";
-            speedAdIcon.SetActive(true);
-
-        }
 
     }
     public void UpgradeBallDropSpeedFree()
     {
         if (currentDropSpeedLevel < dropSpeedCosts.Count)
         {
-            currentDropSpeedLevel++;
-            upgradeDropSpeedCostText.text = currentDropSpeedLevel < dropSpeedCosts.Count ? "DROP SPEED \n" + "$" + dropSpeedCosts[currentDropSpeedLevel].ToString() : "MAX";
-            bs.spawnRate = GetDropSpeed();
-            dropSpeedLevel.text = "LVL " + (currentDropSpeedLevel + 1) + "";
+            BallSpeedFunction();
+
         }
         else
         {
+            speedAdIcon.SetActive(false);
             return;
         }
-        if (dropSpeedCosts[currentDropSpeedLevel] == 0)
+        if (currentDropSpeedLevel%3 == 0)
         {
-
-            upgradeDropSpeedCostText.text = "DROP SPEED \n" + "FREE";
             speedAdIcon.SetActive(true);
         }
         else
         {
             speedAdIcon.SetActive(false);
         }
-        
+
     }
 
 
@@ -182,7 +250,7 @@ public class UpgradeManager : MonoBehaviour
 
         if (fireRateCosts[currentFireRateLevel] == 0)
         {
-            upgradeFireRateCostText.text = "FIRE RATE \n"  + "FREE";
+            upgradeFireRateCostText.text = "FIRE RATE \n" + "FREE";
             fireRateAdIcon.SetActive(true);
         }
         if (dropSpeedCosts[currentDropSpeedLevel] == 0)
@@ -196,62 +264,90 @@ public class UpgradeManager : MonoBehaviour
             valueAdIcon.SetActive(true);
         }
         bs.spawnRate = GetDropSpeed();
+
+        fireRateAdIcon.SetActive(false);
+        speedAdIcon.SetActive(false);
+        valueAdIcon.SetActive(false);
+
     }
 
+    public void UpgradeGunFireRateAd()
+    {
+        GunSelectionGridManager.Instance.WatchedRewardedAd(7);
+    }
+
+    public void FireRateFunction()
+    {
+        currentFireRateLevel++;
+        upgradeFireRateCostText.text = currentFireRateLevel < fireRateCosts.Count ? "FIRE RATE \n" + "$" + fireRateCosts[currentFireRateLevel].ToString() : "MAX";
+        fireFasterLevel.text = "LVL " + (currentFireRateLevel + 1) + "";
+        SaveManager.Instance.DoSaveGame();
+
+    }
     public void UpgradeGunFireRate()
     {
         if (currentFireRateLevel >= fireRateCosts.Count)
         {
+            fireRateAdIcon.SetActive(false);
+
             return;
         }
-        if (fireRateCosts[currentFireRateLevel] == 0)
+        if (currentFireRateLevel%3 != 0)
         {
-            //Watch Ad
-            GunSelectionGridManager.Instance.WatchedRewardedAd(7);
+            fireRateAdIcon.SetActive(false);           
+        }
+
+        if (currentFireRateLevel < fireRateCosts.Count && CoinManager.Instance.SubtractCoins(fireRateCosts[currentFireRateLevel], fireRateUpgradeButton.transform.position, false))
+        {
+            FireRateFunction();
+        }
+
+        if (currentFireRateLevel >= fireRateCosts.Count)
+        {
+            fireRateAdIcon.SetActive(false);
+
             return;
+        }
+
+        if (currentFireRateLevel%3 == 0)
+        {
+            fireRateAdIcon.SetActive(true);
         }
         else
         {
             fireRateAdIcon.SetActive(false);
         }
-        if (currentFireRateLevel < fireRateCosts.Count && CoinManager.Instance.SubtractCoins(fireRateCosts[currentFireRateLevel]))
-        {
-            currentFireRateLevel++;
-            upgradeFireRateCostText.text =   currentFireRateLevel < fireRateCosts.Count ? "FIRE RATE \n"+ "$" + fireRateCosts[currentFireRateLevel].ToString() : "MAX";
-            fireFasterLevel.text = "LVL " + (currentFireRateLevel + 1) + "";
-        }
-        if (currentFireRateLevel >= fireRateCosts.Count)
-        {
-            return;
-        }
-        if (fireRateCosts[currentFireRateLevel] == 0)
-        {
-            upgradeFireRateCostText.text = "FIRE RATE \n" + "FREE";
-            fireRateAdIcon.SetActive(true);
-        }
+
     }
     public void UpgradeGunFireRateFree()
     {
         if (currentFireRateLevel >= fireRateCosts.Count)
         {
+            fireRateAdIcon.SetActive(false);
+
             return;
         }
         if (currentFireRateLevel < fireRateCosts.Count)
         {
-            currentFireRateLevel++;
-            upgradeFireRateCostText.text = currentFireRateLevel < fireRateCosts.Count ? "FIRE RATE \n" + "$" + fireRateCosts[currentFireRateLevel].ToString() : "MAX";
-            fireFasterLevel.text = "LVL " + (currentFireRateLevel + 1) + "";
+            FireRateFunction();
 
         }
-        if (fireRateCosts[currentFireRateLevel] == 0)
+        if (currentFireRateLevel >= fireRateCosts.Count)
         {
-            upgradeFireRateCostText.text = "FIRE RATE \n" + "FREE";
+            fireRateAdIcon.SetActive(false);
+
+            return;
+        }
+        if (currentFireRateLevel%3 == 0)
+        {
             fireRateAdIcon.SetActive(true);
         }
         else
         {
             fireRateAdIcon.SetActive(false);
         }
+
+
     }
 
     void Update()

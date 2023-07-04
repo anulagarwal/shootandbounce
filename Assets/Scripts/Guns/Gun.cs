@@ -118,6 +118,8 @@ public class Gun : MonoBehaviour
         level++;
         
         EnableGunLevel(level);
+        SaveManager.Instance.DoSaveGame();
+
         if (TutorialManager.Instance != null)
         {
             if (TutorialManager.Instance.isEnabled)

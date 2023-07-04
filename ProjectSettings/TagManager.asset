@@ -7,6 +7,9 @@ TagManager:
   - Tile
   - Box
   - Analytics
+  - Ball
+  - Bomb
+  - Dustbin
   layers:
   - Default
   - TransparentFX
@@ -17,7 +20,7 @@ TagManager:
   - Ball
   - Placement
   - Gun
-  - 
+  - Dustbin
   - 
   - 
   - 

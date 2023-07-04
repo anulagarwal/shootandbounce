@@ -71,6 +71,7 @@ public class CoinManager : MonoBehaviour
         {
             UIManager.Instance.ActiveNextLevel(true);
         }
+        UpdatePlacementPoints();
         //  UIManager.Instance.SendPoolTo(true, worldPos);
     }
 
@@ -82,7 +83,7 @@ public class CoinManager : MonoBehaviour
             currentCoins -= v;
             PlayerPrefs.SetInt("coins", currentCoins);
             UIManager.Instance.UpdateCurrentCoins(currentCoins);
-            UIManager.Instance.SendPoolTo(false, worldPos);
+            UIManager.Instance.SendPoolTo(true, worldPos);
             if(currentCoins>= GameManager.Instance.nextLevelRequirement)
             {
                 UIManager.Instance.ActiveNextLevel(true);
@@ -91,6 +92,8 @@ public class CoinManager : MonoBehaviour
             {
                 UIManager.Instance.ActiveNextLevel(false);
             }
+            UpdatePlacementPoints();
+
             return true;
         }
         else
@@ -98,6 +101,39 @@ public class CoinManager : MonoBehaviour
             return false;
         }
 
+    }
+    public bool SubtractCoins(int v, Vector3 worldPos, bool worldPosition)
+    {
+        if (currentCoins - v > 0)
+        {
+            currentCoins -= v;
+            PlayerPrefs.SetInt("coins", currentCoins);
+            UIManager.Instance.UpdateCurrentCoins(currentCoins);
+            UIManager.Instance.SendPoolTo(worldPosition, worldPos);
+            if (currentCoins >= GameManager.Instance.nextLevelRequirement)
+            {
+                UIManager.Instance.ActiveNextLevel(true);
+            }
+            else
+            {
+                UIManager.Instance.ActiveNextLevel(false);
+            }
+            UpdatePlacementPoints();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
+    }
+
+    public void UpdatePlacementPoints()
+    {
+        foreach(PlacementPoint p in FindObjectsOfType<PlacementPoint>())
+        {
+            p.UpdateUnlockText(currentCoins);
+        }
     }
     public bool SubtractCoins(int v)
     {
@@ -114,13 +150,14 @@ public class CoinManager : MonoBehaviour
             {
                 UIManager.Instance.ActiveNextLevel(false);
             }
+            UpdatePlacementPoints();
+
             return true;
         }
         else
         {
             return false;
         }
-
     }
 
     #endregion

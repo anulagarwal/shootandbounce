@@ -100,7 +100,7 @@ public class Ball : MonoBehaviour
         CoinManager.Instance.AddCoins(Mathf.RoundToInt(health), transform.position);
         GameObject g = Instantiate(AwesomeText, transform.position, Quaternion.identity);
         g.GetComponent<AwesomeText>().SetText(health);
-
+        DOTween.KillAll();
         // Spawn coins
         for (int i = 0; i < 2; i++)
         {
@@ -111,7 +111,6 @@ public class Ball : MonoBehaviour
 
     private void OnDestroy()
     {
-        sequence.Kill();
     }
 
     public void TakeDamage(int damage)
@@ -134,9 +133,8 @@ public class Ball : MonoBehaviour
            v = new Vector3(transform.localScale.x + (growthRate/2), transform.localScale.y + (growthRate/2), transform.localScale.z + (growthRate/2));
         }
         
-        sequence = DOTween.Sequence();
-        sequence.Append(transform.DOScale(v, 1f).SetEase(Ease.OutBounce));
-        
+      
+        transform.localScale = v;
         health = value;
         // Update the color according to the new value
         foreach (var range in colorRanges)

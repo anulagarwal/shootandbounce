@@ -10,6 +10,7 @@ typedef void (*AppodealBannerViewDidLoadCallback) ();
 @property (assign, nonatomic) AppodealBannerViewCallbacks bannerViewDidFailToLoadAdCallback;
 @property (assign, nonatomic) AppodealBannerViewCallbacks bannerViewDidClickCallback;
 @property (assign, nonatomic) AppodealBannerViewCallbacks bannerViewDidShowCallback;
+@property (assign, nonatomic) AppodealBannerViewCallbacks bannerViewDidFailToPresentCallback;
 @property (assign, nonatomic) AppodealBannerViewCallbacks bannerViewDidExpiredCallback;
 
 @end

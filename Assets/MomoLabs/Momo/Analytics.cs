@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using GameAnalyticsSDK;
-using DevToDev.Analytics;
 
 
 namespace Momo
@@ -51,7 +50,7 @@ namespace Momo
             appSessionCount = PlayerPrefs.GetInt("appSession", 0);
             level = PlayerPrefs.GetInt("level", 1);
           
-           GameAnalytics.NewDesignEvent("session", appSessionCount);
+        //   GameAnalytics.NewDesignEvent("session", appSessionCount);
             GameAnalytics.Initialize();
 
             dayNumber = PlayerPrefs.GetInt("dayNumber", 0);

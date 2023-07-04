@@ -7,17 +7,21 @@
 #import <Appodeal/Appodeal.h>
 #import <StackConsentManager/StackConsentManager.h>
 
-#import "AppodealInterstitialDelegate.h"
-#import "AppodealNonSkippableVideoDelegate.h"
-#import "AppodealBannerDelegate.h"
-#import "AppodealBannerViewDelegate.h"
-#import "AppodealMrecViewDelegate.h"
-#import "AppodealRewardedVideoDelegate.h"
 #import "AppodealUnityMrecView.h"
 #import "AppodealUnityBannerView.h"
 
-static AppodealUnityBannerView *bannerUnity;
+#import "AppodealBannerDelegate.h"
+#import "AppodealMrecViewDelegate.h"
+#import "AppodealBannerViewDelegate.h"
+#import "AppodealInterstitialDelegate.h"
+#import "AppodealRewardedVideoDelegate.h"
+
+#import "AppodealAdRevenueDelegate.h"
+#import "AppodealIAPValidationDelegate.h"
+#import "AppodealInitializationDelegate.h"
+
 static AppodealUnityMrecView *mrecUnity;
+static AppodealUnityBannerView *bannerUnity;
 
 UIViewController *RootViewController() {
     return ((UnityAppController *)[UIApplication sharedApplication].delegate).rootViewController;
@@ -33,7 +37,45 @@ static NSDateFormatter *DateFormatter() {
     return formatter;
 }
 
-void AppodealInitialize(const char *apiKey, int types, BOOL consent, const char *pluginVer, const char *engineVer) {
+static NSString *NSStringFromUTF8String(const char *bytes) {
+    return bytes ? @(bytes) : nil;
+}
+
+static NSDictionary <NSString *, id> *NSDictionaryFromUTF8String(const char *cString) {
+    NSString *string = [NSString stringWithUTF8String:cString];
+    if ([string length] == 0) return nil;
+    NSArray *pairs = [string componentsSeparatedByString:@","];
+    NSMutableDictionary <NSString *, id> *outputDict = [NSMutableDictionary dictionaryWithCapacity:pairs.count];
+    [pairs enumerateObjectsUsingBlock:^(NSString *pair, NSUInteger idx, BOOL *stop) {
+        NSArray <NSString *> *splited = [pair componentsSeparatedByString:@"="];
+        NSString *key = splited.firstObject;
+        NSString *value = splited.lastObject;
+        NSArray *valueSplitted = [value componentsSeparatedByString:@":"];
+        if (key) {
+            if ([valueSplitted.firstObject isEqualToString:@"System.Int32"]) {
+                outputDict[key] = @([valueSplitted.lastObject intValue]);
+            }
+            else if ([valueSplitted.firstObject isEqualToString:@"System.Double"]) {
+                outputDict[key] = @([valueSplitted.lastObject doubleValue]);
+            }
+            else if ([valueSplitted.firstObject isEqualToString:@"System.Boolean"]) {
+                outputDict[key] = @([valueSplitted.lastObject boolValue]);
+            }
+            else if ([valueSplitted.firstObject isEqualToString:@"System.String"]){
+                outputDict[key] = valueSplitted.lastObject;
+            }
+        }
+    }];
+    return outputDict;
+}
+
+void AppodealInitialize(const char *apiKey, int types, const char *pluginVer, const char *engineVer) {
+    [Appodeal setFramework:APDFrameworkUnity version: [NSString stringWithUTF8String:engineVer]];
+    [Appodeal setPluginVersion:[NSString stringWithUTF8String:pluginVer]];
+    [Appodeal initializeWithApiKey:[NSString stringWithUTF8String:apiKey] types:types];
+}
+
+void AppodealInitializeOld(const char *apiKey, int types, BOOL consent, const char *pluginVer, const char *engineVer) {
     [Appodeal setFramework:APDFrameworkUnity version: [NSString stringWithUTF8String:engineVer]];
     [Appodeal setPluginVersion:[NSString stringWithUTF8String:pluginVer]];
     [Appodeal initializeWithApiKey:[NSString stringWithUTF8String:apiKey] types:types hasConsent:consent];
@@ -46,7 +88,7 @@ void AppodealInitializeWithConsent(const char *apiKey, int types, const char *pl
 }
 
 BOOL AppodealIsInitialized(int types) {
-    return [Appodeal isInitalizedForAdType:types];
+    return [Appodeal isInitializedForAdType:types];
 }
 
 BOOL AppodealShowAd(int style) {
@@ -57,6 +99,22 @@ BOOL AppodealShowAdforPlacement(int style, const char *placement) {
     return [Appodeal showAd:style forPlacement:[NSString stringWithUTF8String:placement] rootViewController:RootViewController()];
 }
 
+BOOL AppodealShowBannerAdViewforPlacement(int YAxis, int XAxis, const char *placement) {
+    if (!bannerUnity) {
+        bannerUnity = [AppodealUnityBannerView sharedInstance];
+    }
+    [bannerUnity showBannerView:RootViewController() XAxis:XAxis YAxis:YAxis placement:[NSString stringWithUTF8String:placement]];
+    return false;
+}
+
+BOOL AppodealShowMrecAdViewforPlacement(int YAxis, int XAxis, const char *placement) {
+    if (!mrecUnity) {
+        mrecUnity = [AppodealUnityMrecView sharedInstance];
+    }
+    [mrecUnity showMrecView:RootViewController() XAxis:XAxis YAxis:YAxis placement:[NSString stringWithUTF8String:placement]];
+    return false;
+}
+
 BOOL AppodealIsReadyWithStyle(int style) {
     return [Appodeal isReadyForShowWithStyle:style];
 }
@@ -65,8 +123,8 @@ void AppodealCacheAd(int types) {
     [Appodeal cacheAd:types];
 }
 
-void AppodealSetAutocache(BOOL autocache, int types) {
-    [Appodeal setAutocache:autocache types:types];
+void AppodealSetAutocache(BOOL autoCache, int types) {
+    [Appodeal setAutocache:autoCache types:types];
 }
 
 void AppodealHideBanner() {
@@ -89,29 +147,29 @@ void AppodealSetSmartBanners(bool value) {
     [Appodeal setSmartBannersEnabled:value];
 }
 
+BOOL AppodealIsSmartBannersEnabled() {
+    return [Appodeal isSmartBannersEnabled];
+}
+
 void AppodealSetTabletBanners(bool value) {
     if (!bannerUnity) {
         bannerUnity = [AppodealUnityBannerView sharedInstance];
     }
-    
+
     if (value) {
         [Appodeal setPreferredBannerAdSize:kAppodealUnitSize_728x90];
     } else {
         [Appodeal setPreferredBannerAdSize:kAppodealUnitSize_320x50];
     }
-    
-    [bannerUnity setTabletBanner:value];
-}
 
-void AppodealSetBannerBackground(BOOL value) {
-    [Appodeal setBannerBackgroundVisible:value];
+    [bannerUnity setTabletBanner:value];
 }
 
 void AppodealSetBannerAnimation(BOOL value) {
     [Appodeal setBannerAnimationEnabled:value];
 }
 
-void AppodealSetBannerRotation(int leftBannerRotation, int rightBannerRotation){
+void AppodealSetBannerRotation(int leftBannerRotation, int rightBannerRotation) {
     [Appodeal setBannerLeftRotationAngleDegrees:leftBannerRotation rightRotationAngleDegrees: rightBannerRotation];
 }
 
@@ -144,7 +202,47 @@ void AppodealUpdateConsent(BOOL value) {
 }
 
 void AppodealUpdateConsentReport() {
-    [Appodeal updateConsent:STKConsentManager.sharedManager.consent];
+    [Appodeal updateConsentReport:STKConsentManager.sharedManager.consent];
+}
+
+void AppodealUpdateGdprConsent(int consent) {
+    switch (consent) {
+        case 0:
+            [Appodeal updateUserConsentGDPR:APDGDPRUserConsentUnknown];
+            break;
+        case 1:
+            [Appodeal updateUserConsentGDPR:APDGDPRUserConsentPersonalized];
+            break;
+        case 2:
+            [Appodeal updateUserConsentGDPR:APDGDPRUserConsentNonPersonalized];
+            break;
+        default:
+            break;
+    }
+}
+
+void AppodealUpdateCcpaConsent(int consent) {
+    switch (consent) {
+        case 0:
+            [Appodeal updateUserConsentCCPA:APDCCPAUserConsentUnknown];
+            break;
+        case 1:
+            [Appodeal updateUserConsentCCPA:APDCCPAUserConsentOptIn];
+            break;
+        case 2:
+            [Appodeal updateUserConsentCCPA:APDCCPAUserConsentOptOut];
+            break;
+        default:
+            break;
+    }
+}
+
+char *AppodealGetNetworks(int types) {
+    NSArray<NSString *> *networksArray = [Appodeal registeredNetworkNamesForAdType:types];
+    NSString *networks = [[networksArray valueForKey:@"description"] componentsJoinedByString:@","];
+    const char *output = [networks UTF8String];
+    char *outputCopy = calloc([networks length]+1, 1);
+    return strncpy(outputCopy, output, [networks length]);
 }
 
 void AppodealDisableNetwork(const char *networkName) {
@@ -155,18 +253,27 @@ void AppodealDisableNetworkForAdTypes(const char *networkName, int type) {
     [Appodeal disableNetworkForAdType:type name:[NSString stringWithUTF8String:networkName]];
 }
 
+void AppodealSetLocationTracking(BOOL value) {
+    [Appodeal setLocationTracking:value];
+}
+
 void AppodealDisableLocationPermissionCheck() {
     [Appodeal setLocationTracking:NO];
 }
 
-void AppodealSetTriggerPrecacheCallbacks(bool value) {
-    [Appodeal setTriggerPrecacheCallbacks:value];
+void AppodealSetTriggerPrecacheCallbacks(int types, bool value) {
+    [Appodeal setTriggerPrecacheCallbacks:value types:types];
 }
 
 char *AppodealGetVersion() {
     const char *cString = [[Appodeal getVersion] UTF8String];
     char *cStringCopy = calloc([[Appodeal getVersion] length]+1, 1);
     return strncpy(cStringCopy, cString, [[Appodeal getVersion] length]);
+}
+
+long AppodealGetSegmentId() {
+    NSNumber *id = [Appodeal segmentId];
+    return [id longValue];
 }
 
 char *AppodealGetRewardCurrency(const char *placement) {
@@ -201,79 +308,44 @@ BOOL AppodealIsAutoCacheEnabled(int adType) {
     return [Appodeal isAutocacheEnabled:adType];
 }
 
-void AppodealSetSegmentFilterBool(const char *name, BOOL value) {
-    NSString *key = [NSString stringWithUTF8String:name];
-    NSNumber *valueNum = [NSNumber numberWithBool:value];
-    NSDictionary *objCRule = key ? @{key : valueNum} : @{};
-    [Appodeal setSegmentFilter:objCRule];
-}
-
-void AppodealSetSegmentFilterInt(const char *name, int value) {
-    NSDictionary *tempDictionary = @{[NSString stringWithUTF8String:name]: [NSNumber numberWithInt:value]};
-    NSDictionary *dict =  [NSDictionary dictionaryWithDictionary:tempDictionary];
-    [Appodeal setSegmentFilter:dict];
-}
-
-void AppodealSetSegmentFilterDouble(const char *name, double value) {
-    NSDictionary *tempDictionary = @{[NSString stringWithUTF8String:name]: [NSNumber numberWithDouble:value]};
-    NSDictionary *dict = [NSDictionary dictionaryWithDictionary:tempDictionary];
-    [Appodeal setSegmentFilter:dict];
-}
-
-void AppodealSetSegmentFilterString(const char *name, const char *value) {
-    NSDictionary *tempDictionary = @{[NSString stringWithUTF8String:name]: [NSString stringWithUTF8String:value]};
-    NSDictionary *dict = [NSDictionary dictionaryWithDictionary:tempDictionary];
-    [Appodeal setSegmentFilter:dict];
-}
-
 void AppodealSetCustomFilterBool(const char *name, BOOL value) {
-    NSString *key = [NSString stringWithUTF8String:name];
-    NSNumber *valueNum = [NSNumber numberWithBool:value];
-    NSDictionary *objCRule = key ? @{key : valueNum} : @{};
-    [Appodeal setCustomState:objCRule];
+    [Appodeal setCustomStateValue:[NSNumber numberWithBool:value] forKey:[NSString stringWithUTF8String:name]];
 }
 
 void AppodealSetCustomFilterInt(const char *name, int value) {
-    NSDictionary *tempDictionary = @{[NSString stringWithUTF8String:name]: [NSNumber numberWithInt:value]};
-    NSDictionary *dict = [NSDictionary dictionaryWithDictionary:tempDictionary];
-    [Appodeal setCustomState:dict];
+    [Appodeal setCustomStateValue:[NSNumber numberWithInt:value] forKey:[NSString stringWithUTF8String:name]];
 }
 
 void AppodealSetCustomFilterDouble(const char *name, double value) {
-    NSDictionary *tempDictionary = @{[NSString stringWithUTF8String:name]: [NSNumber numberWithDouble:value]};
-    NSDictionary *dict = [NSDictionary dictionaryWithDictionary:tempDictionary];
-    [Appodeal setCustomState:dict];
+    [Appodeal setCustomStateValue:[NSNumber numberWithDouble:value] forKey:[NSString stringWithUTF8String:name]];
 }
 
 void AppodealSetCustomFilterString(const char *name, const char *value) {
-    NSDictionary *tempDictionary = @{[NSString stringWithUTF8String:name]: [NSString stringWithUTF8String:value]};
-    NSDictionary *dict = [NSDictionary dictionaryWithDictionary:tempDictionary];
-    [Appodeal setCustomState:dict];
+    [Appodeal setCustomStateValue:[NSString stringWithUTF8String:value] forKey:[NSString stringWithUTF8String:name]];
+}
+
+void AppodealResetCustomFilter(const char *name) {
+    [Appodeal setCustomStateValue:nil forKey:[NSString stringWithUTF8String:name]];
 }
 
 void AppodealSetExtraDataBool(const char *name, BOOL value) {
-    NSString *key = [NSString stringWithUTF8String:name];
-    NSNumber *valueNum = [NSNumber numberWithBool:value];
-    NSDictionary *objCRule = key ? @{} : @{key : valueNum};
-    [Appodeal setExtras:objCRule];
+    [Appodeal setExtrasValue:[NSNumber numberWithBool:value] forKey:[NSString stringWithUTF8String:name]];
 }
 
 void AppodealSetExtraDataInt(const char *name, int value) {
-    NSDictionary *tempDictionary = @{[NSString stringWithUTF8String:name]: [NSNumber numberWithInt:value]};
-    NSDictionary *dict = [NSDictionary dictionaryWithDictionary:tempDictionary];
-    [Appodeal setExtras:dict];
+    [Appodeal setExtrasValue:[NSNumber numberWithInt:value] forKey:[NSString stringWithUTF8String:name]];
 }
 
 void AppodealSetExtraDataDouble(const char *name, double value) {
-    NSDictionary *tempDictionary = @{[NSString stringWithUTF8String:name]: [NSNumber numberWithDouble:value]};
-    NSDictionary *dict = [NSDictionary dictionaryWithDictionary:tempDictionary];
-    [Appodeal setExtras:dict];
+    [Appodeal setExtrasValue:[NSNumber numberWithDouble:value] forKey:[NSString stringWithUTF8String:name]];
 }
 
 void AppodealSetExtraDataString(const char *name, const char *value) {
-    NSDictionary *tempDictionary = @{[NSString stringWithUTF8String:name]: [NSString stringWithUTF8String:value]};
-    NSDictionary *dict = [NSDictionary dictionaryWithDictionary:tempDictionary];
-    [Appodeal setExtras:dict];
+    [Appodeal setExtrasValue:[NSString stringWithUTF8String:value] forKey:[NSString stringWithUTF8String:name]];
+}
+
+void AppodealResetExtraData(const char *name) {
+    [Appodeal setExtrasValue:nil forKey:[NSString stringWithUTF8String:name]];
 }
 
 void AppodealTrackInAppPurchase(int amount, const char *currency) {
@@ -288,81 +360,83 @@ void AppodealSetUserId(const char *userid) {
     [Appodeal setUserId:[NSString stringWithUTF8String:userid]];
 }
 
+char *AppodealGetUserId() {
+    const char *cString = [[Appodeal userId] UTF8String];
+    char *cStringCopy = calloc([[Appodeal userId] length]+1, 1);
+    return strncpy(cStringCopy, cString, [[Appodeal userId] length]);
+}
+
 void AppodealSetUserGender(int gender) {
     switch (gender) {
         case 0:
-            [Appodeal setUserGender:APDUserGenderOther];
+            [Appodeal setUserGender:AppodealUserGenderOther];
             break;
         case 1:
-            [Appodeal setUserGender:APDUserGenderMale];
+            [Appodeal setUserGender:AppodealUserGenderMale];
             break;
         case 2:
-            [Appodeal setUserGender:APDUserGenderFemale];
+            [Appodeal setUserGender:AppodealUserGenderFemale];
             break;
         default:
             break;
     }
 }
 
-static AppodealBannerViewDelegate *AppodealBannerViewDelegateInstance;
-void AppodealSetBannerViewDelegate(AppodealBannerViewDidLoadCallback bannerViewDidLoadAd,
-                                   AppodealBannerViewCallbacks bannerViewDidFailToLoadAd,
-                                   AppodealBannerViewCallbacks bannerViewDidClick,
-                                   AppodealBannerViewCallbacks bannerViewDidShow,
-                                   AppodealBannerViewCallbacks bannerViewDidExpired) {
-    
-    AppodealBannerViewDelegateInstance = [AppodealBannerViewDelegate new];
-    
-    AppodealBannerViewDelegateInstance.bannerViewDidLoadAdCallback = bannerViewDidLoadAd;
-    AppodealBannerViewDelegateInstance.bannerViewDidFailToLoadAdCallback = bannerViewDidFailToLoadAd;
-    AppodealBannerViewDelegateInstance.bannerViewDidClickCallback = bannerViewDidClick;
-    AppodealBannerViewDelegateInstance.bannerViewDidShowCallback = bannerViewDidShow;
-    AppodealBannerViewDelegateInstance.bannerViewDidExpiredCallback = bannerViewDidExpired;
-    
-    if(!bannerUnity) {
-        bannerUnity = [AppodealUnityBannerView sharedInstance];
-    }
-    [bannerUnity.bannerView setDelegate:AppodealBannerViewDelegateInstance];
+void AppodealLogEvent(const char *eventName, const char *eventParams) {
+    [Appodeal trackEvent:NSStringFromUTF8String(eventName) customParameters:NSDictionaryFromUTF8String(eventParams)];
 }
 
-static AppodealMrecViewDelegate *AppodealMrecViewDelegateInstance;
-void AppodealSetMrecViewDelegate(AppodealMrecViewDidLoadCallback mrecViewDidLoadAd,
-                                 AppodealMrecViewCallbacks mrecViewDidFailToLoadAd,
-                                 AppodealMrecViewCallbacks mrecViewDidClick,
-                                 AppodealMrecViewCallbacks mrecViewDidShow,
-                                 AppodealMrecViewCallbacks mrecViewDidExpired) {
+void AppodealValidateInAppPurchase(const char *productIdentifier,
+                                   const char *price,
+                                   const char *currency,
+                                   const char *transactionId,
+                                   const char *additionalParams,
+                                   int type,
+                                   InAppPurchaseValidationSucceededCallback success,
+                                   InAppPurchaseValidationFailedCallback failure) {
+    NSString *productIdString = NSStringFromUTF8String(productIdentifier);
+    NSString *priceString = NSStringFromUTF8String(price);
+    NSString *currencyString = NSStringFromUTF8String(currency);
+    NSString *transactionIdString = NSStringFromUTF8String(transactionId);
+    NSDictionary *additionalParamsDict = NSDictionaryFromUTF8String(additionalParams);
     
-    AppodealMrecViewDelegateInstance = [AppodealMrecViewDelegate new];
-    
-    AppodealMrecViewDelegateInstance.mrecViewDidLoadAdCallback = mrecViewDidLoadAd;
-    AppodealMrecViewDelegateInstance.mrecViewDidFailToLoadAdCallback = mrecViewDidFailToLoadAd;
-    AppodealMrecViewDelegateInstance.mrecViewDidClickCallback = mrecViewDidClick;
-    AppodealMrecViewDelegateInstance.mrecViewDidShowCallback = mrecViewDidShow;
-    AppodealMrecViewDelegateInstance.mrecViewDidExpiredCallback = mrecViewDidExpired;
-    
-    if (!mrecUnity) {
-        mrecUnity = [AppodealUnityMrecView sharedInstance];
+    [Appodeal validateAndTrackInAppPurchase:productIdString
+                                       type:(APDPurchaseType)type
+                                      price:priceString
+                                   currency:[currencyString substringWithRange:NSMakeRange(0, MIN(5,currencyString.length))]
+                              transactionId:transactionIdString
+                       additionalParameters:additionalParamsDict
+
+                                    success:^(NSDictionary *data) {
+        NSData *jsonData;
+        NSError *jsonError;
+        jsonData = [NSJSONSerialization dataWithJSONObject:data
+                                                   options:0
+                                                     error:&jsonError];
+        if (jsonError) {
+            failure ? failure("Invalid response") : nil;
+        } else {
+            NSString *JSONString = [[NSString alloc] initWithBytes:jsonData.bytes
+                                                            length:jsonData.length
+                                                          encoding:NSUTF8StringEncoding];
+            success ? success(JSONString.UTF8String) : nil;
+        }
     }
-    [mrecUnity.mrecView setDelegate:AppodealMrecViewDelegateInstance];
+                                    failure:^(NSError *error) {
+        NSString *errorString = (!error) ? @"unknown" : [NSString stringWithFormat:@"error: %@", error.localizedDescription];        
+        failure ? failure(errorString.UTF8String) : nil;
+    }];
 }
 
-BOOL AppodealShowBannerAdViewforPlacement(int YAxis, int XAxis, const char *placement) {
-    if (!bannerUnity) {
-        bannerUnity = [AppodealUnityBannerView sharedInstance];
-    }
-    [bannerUnity showBannerView:RootViewController() XAxis:XAxis YAxis:YAxis placement:[NSString stringWithUTF8String:placement]];
-    return false;
+static AppodealInitializationDelegate *AppodealInitializationDelegateInstance;
+void AppodealSetInitializationDelegate(AppodealInitializationCallback initializationCompleted) {
+    
+    AppodealInitializationDelegateInstance = [AppodealInitializationDelegate new];
+    
+    AppodealInitializationDelegateInstance.initializationCompletedCallback = initializationCompleted;
+
+    [Appodeal setInitializationDelegate:AppodealInitializationDelegateInstance];
 }
-
-BOOL AppodealShowMrecAdViewforPlacement(int YAxis, int XAxis, const char *placement) {
-    if (!mrecUnity) {
-        mrecUnity = [AppodealUnityMrecView sharedInstance];
-    }
-    [mrecUnity showMrecView:RootViewController() XAxis:XAxis YAxis:YAxis placement:[NSString stringWithUTF8String:placement]];
-    return false;
-}
-
-
 
 static AppodealInterstitialDelegate *AppodealInterstitialDelegateInstance;
 void AppodealSetInterstitialDelegate(AppodealInterstitialDidLoadCallback interstitialDidLoadAd,
@@ -386,45 +460,70 @@ void AppodealSetInterstitialDelegate(AppodealInterstitialDidLoadCallback interst
     [Appodeal setInterstitialDelegate:AppodealInterstitialDelegateInstance];
 }
 
-
 static AppodealBannerDelegate *AppodealBannerDelegateInstance;
 void AppodealSetBannerDelegate(AppodealBannerDidLoadCallback bannerDidLoadAd,
                                AppodealBannerCallbacks bannerDidFailToLoadAd,
                                AppodealBannerCallbacks bannerDidClick,
+                               AppodealBannerCallbacks bannerDidExpired,
                                AppodealBannerCallbacks bannerDidShow,
-                               AppodealBannerCallbacks bannerDidExpired) {
+                               AppodealBannerCallbacks bannerDidFailToPresent) {
     
     AppodealBannerDelegateInstance = [AppodealBannerDelegate new];
     
     AppodealBannerDelegateInstance.bannerDidLoadAdCallback = bannerDidLoadAd;
     AppodealBannerDelegateInstance.bannerDidFailToLoadAdCallback = bannerDidFailToLoadAd;
     AppodealBannerDelegateInstance.bannerDidClickCallback = bannerDidClick;
-    AppodealBannerDelegateInstance.bannerDidShowCallback = bannerDidShow;
     AppodealBannerDelegateInstance.bannerDidExpiredCallback = bannerDidExpired;
+    AppodealBannerDelegateInstance.bannerDidShowCallback = bannerDidShow;
+    AppodealBannerDelegateInstance.bannerDidFailToPresentCallback = bannerDidFailToPresent;
     
     [Appodeal setBannerDelegate:AppodealBannerDelegateInstance];
 }
 
-static AppodealNonSkippableVideoDelegate *AppodealNonSkippableVideoDelegateInstance;
-void AppodealSetNonSkippableVideoDelegate(AppodealNonSkippableVideoDidLoadCallback nonSkippableVideoDidLoadAd,
-                                          AppodealNonSkippableVideoCallbacks nonSkippableVideoDidFailToLoadAd,
-                                          AppodealNonSkippableVideoCallbacks nonSkippableVideoDidFailToPresent,
-                                          AppodealNonSkippableVideoDidDismissCallback nonSkippableVideoWillDismiss,
-                                          AppodealNonSkippableVideoCallbacks nonSkippableVideoDidFinish,
-                                          AppodealNonSkippableVideoCallbacks nonSkippableVideoDidPresent,
-                                          AppodealNonSkippableVideoCallbacks nonSkippableVideoDidExpired) {
+static AppodealBannerViewDelegate *AppodealBannerViewDelegateInstance;
+void AppodealSetBannerViewDelegate(AppodealBannerViewDidLoadCallback bannerViewDidLoadAd,
+                                   AppodealBannerViewCallbacks bannerViewDidFailToLoadAd,
+                                   AppodealBannerViewCallbacks bannerViewDidClick,
+                                   AppodealBannerViewCallbacks bannerViewDidShow,
+                                   AppodealBannerViewCallbacks bannerViewDidFailToPresent,
+                                   AppodealBannerViewCallbacks bannerViewDidExpired) {
     
-    AppodealNonSkippableVideoDelegateInstance = [AppodealNonSkippableVideoDelegate new];
+    AppodealBannerViewDelegateInstance = [AppodealBannerViewDelegate new];
     
-    AppodealNonSkippableVideoDelegateInstance.nonSkippableVideoDidLoadAdCallback = nonSkippableVideoDidLoadAd;
-    AppodealNonSkippableVideoDelegateInstance.nonSkippableVideoDidFailToLoadAdCallback = nonSkippableVideoDidFailToLoadAd;
-    AppodealNonSkippableVideoDelegateInstance.nonSkippableVideoDidFailToPresentCallback = nonSkippableVideoDidFailToPresent;
-    AppodealNonSkippableVideoDelegateInstance.nonSkippableVideoWillDismissCallback = nonSkippableVideoWillDismiss;
-    AppodealNonSkippableVideoDelegateInstance.nonSkippableVideoDidFinishCallback = nonSkippableVideoDidFinish;
-    AppodealNonSkippableVideoDelegateInstance.nonSkippableVideoDidPresentCallback = nonSkippableVideoDidPresent;
-    AppodealNonSkippableVideoDelegateInstance.nonSkippableVideoDidExpiredCallback =  nonSkippableVideoDidExpired;
+    AppodealBannerViewDelegateInstance.bannerViewDidLoadAdCallback = bannerViewDidLoadAd;
+    AppodealBannerViewDelegateInstance.bannerViewDidFailToLoadAdCallback = bannerViewDidFailToLoadAd;
+    AppodealBannerViewDelegateInstance.bannerViewDidClickCallback = bannerViewDidClick;
+    AppodealBannerViewDelegateInstance.bannerViewDidShowCallback = bannerViewDidShow;
+    AppodealBannerViewDelegateInstance.bannerViewDidFailToPresentCallback = bannerViewDidFailToPresent;
+    AppodealBannerViewDelegateInstance.bannerViewDidExpiredCallback = bannerViewDidExpired;
     
-    [Appodeal setNonSkippableVideoDelegate:AppodealNonSkippableVideoDelegateInstance];
+    if(!bannerUnity) {
+        bannerUnity = [AppodealUnityBannerView sharedInstance];
+    }
+    [bannerUnity.bannerView setDelegate:AppodealBannerViewDelegateInstance];
+}
+
+static AppodealMrecViewDelegate *AppodealMrecViewDelegateInstance;
+void AppodealSetMrecViewDelegate(AppodealMrecViewDidLoadCallback mrecViewDidLoadAd,
+                                 AppodealMrecViewCallbacks mrecViewDidFailToLoadAd,
+                                 AppodealMrecViewCallbacks mrecViewDidClick,
+                                 AppodealMrecViewCallbacks mrecViewDidShow,
+                                 AppodealMrecViewCallbacks mrecViewDidFailToPresent,
+                                 AppodealMrecViewCallbacks mrecViewDidExpired) {
+    
+    AppodealMrecViewDelegateInstance = [AppodealMrecViewDelegate new];
+    
+    AppodealMrecViewDelegateInstance.mrecViewDidLoadAdCallback = mrecViewDidLoadAd;
+    AppodealMrecViewDelegateInstance.mrecViewDidFailToLoadAdCallback = mrecViewDidFailToLoadAd;
+    AppodealMrecViewDelegateInstance.mrecViewDidClickCallback = mrecViewDidClick;
+    AppodealMrecViewDelegateInstance.mrecViewDidShowCallback = mrecViewDidShow;
+    AppodealMrecViewDelegateInstance.mrecViewDidFailToPresentCallback = mrecViewDidFailToPresent;
+    AppodealMrecViewDelegateInstance.mrecViewDidExpiredCallback = mrecViewDidExpired;
+    
+    if (!mrecUnity) {
+        mrecUnity = [AppodealUnityMrecView sharedInstance];
+    }
+    [mrecUnity.mrecView setDelegate:AppodealMrecViewDelegateInstance];
 }
 
 static AppodealRewardedVideoDelegate *AppodealRewardedVideoDelegateInstance;
@@ -446,8 +545,17 @@ void AppodealSetRewardedVideoDelegate(AppodealRewardedVideoDidLoadCallback rewar
     AppodealRewardedVideoDelegateInstance.rewardedVideoDidFinishCallback = rewardedVideoDidFinish;
     AppodealRewardedVideoDelegateInstance.rewardedVideoDidPresentCallback = rewardedVideoDidPresent;
     AppodealRewardedVideoDelegateInstance.rewardedVideoDidExpireCallback = rewardedVideoDidExpired;
-    AppodealRewardedVideoDelegateInstance.rewardedVideoDidRecieveTapActionCallback = rewardedVideoDidReceiveTap;
+    AppodealRewardedVideoDelegateInstance.rewardedVideoDidReceiveTapActionCallback = rewardedVideoDidReceiveTap;
     
     [Appodeal setRewardedVideoDelegate:AppodealRewardedVideoDelegateInstance];
 }
 
+static AppodealAdRevenueDelegate *AppodealAdRevenueDelegateInstance;
+void AppodealSetAdRevenueDelegate(AppodealAdRevenueCallback adRevenueReceived) {
+    
+    AppodealAdRevenueDelegateInstance = [AppodealAdRevenueDelegate new];
+    
+    AppodealAdRevenueDelegateInstance.adRevenueReceivedCallback = adRevenueReceived;
+
+    [Appodeal setAdRevenueDelegate:AppodealAdRevenueDelegateInstance];
+}

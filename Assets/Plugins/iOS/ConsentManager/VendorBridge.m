@@ -1,4 +1,3 @@
-
 #if defined(__has_include) && __has_include("UnityAppController.h")
 #import "UnityAppController.h"
 #else
@@ -107,7 +106,7 @@ void SetLegitimateInterestPurposeIds(const char *legitimateInterestPurposeIds) {
     VendorBridge.sharedVendorBridge.legIntPurposeIds = ArrayFromCommaSeparatedString([[NSString alloc] initWithUTF8String:legitimateInterestPurposeIds]);
 }
 
-const char *GetConChar(NSString *message){
+const char *GetConChar(NSString *message) {
     const char *cString = [message UTF8String];
     char *cStringCopy = calloc([message length]+1, 1);
     return strncpy(cStringCopy, cString, [message length]);
@@ -131,5 +130,3 @@ NSString *CommaSeparatedStringFromArray(NSArray <NSNumber *> *array) {
     NSString *result = [stringArray componentsJoinedByString:@","];
     return result;
 }
-
-

@@ -4,7 +4,7 @@
 typedef void (*AppodealRewardedVideoCallbacks) ();
 typedef void (*AppodealRewardedVideoDidLoadCallback) (BOOL isPrecache);
 typedef void (*AppodealRewardedVideoDidFinishCallback) (double, const char *);
-typedef void (*AppodealRewardedVideoDidDismissCallback) (BOOL isFnished);
+typedef void (*AppodealRewardedVideoDidDismissCallback) (BOOL isFinished);
 
 @interface AppodealRewardedVideoDelegate : NSObject <AppodealRewardedVideoDelegate>
 
@@ -15,6 +15,6 @@ typedef void (*AppodealRewardedVideoDidDismissCallback) (BOOL isFnished);
 @property (assign, nonatomic) AppodealRewardedVideoCallbacks rewardedVideoDidPresentCallback;
 @property (assign, nonatomic) AppodealRewardedVideoDidFinishCallback rewardedVideoDidFinishCallback;
 @property (assign, nonatomic) AppodealRewardedVideoCallbacks rewardedVideoDidExpireCallback;
-@property (assign, nonatomic) AppodealRewardedVideoCallbacks rewardedVideoDidRecieveTapActionCallback;
+@property (assign, nonatomic) AppodealRewardedVideoCallbacks rewardedVideoDidReceiveTapActionCallback;
 
 @end

@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using CrazyGames;
 using UnityEngine.UI;
 using TMPro;
 public class SceneHandler : MonoBehaviour
@@ -45,8 +44,8 @@ public class SceneHandler : MonoBehaviour
     }
 
     public void ChangeLevel()
-    {        
-            AdManager.Instance.ShowAdChangeLevel();         
+    {
+        ChangeTheLevel();      
     }
 
     public void ChangeTheLevel()
@@ -78,7 +77,7 @@ public class SceneHandler : MonoBehaviour
 
     public void WatchAdForCoin()
     {
-        CrazyAds.Instance.beginAdBreakRewarded(GiveCoins);
+      
     }
 
     public void GiveCoins()

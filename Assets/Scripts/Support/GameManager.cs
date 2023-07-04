@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Momo;
-using CrazyGames;
+//using CrazyGames;
 public class GameManager : MonoBehaviour
 {
     #region Singleton
@@ -63,6 +63,7 @@ public class GameManager : MonoBehaviour
         currentLevel = PlayerPrefs.GetInt("level", 1);
         UIManager.Instance.UpdateLevel(currentLevel);
         currentState = GameState.Main;
+      //  CrazyEvents.Instance.GameplayStart();
         StartLevel();
     }
     #endregion
@@ -72,7 +73,6 @@ public class GameManager : MonoBehaviour
     {
         UIManager.Instance.SwitchUIPanel(UIPanelState.Gameplay);
         currentState = GameState.InGame;
-        CrazyEvents.Instance.GameplayStart();
         Analytics.Instance.StartLevel(currentLevel);
         levelStartTime = Time.time;
 
@@ -80,15 +80,17 @@ public class GameManager : MonoBehaviour
 
     public void PauseGame()
     {
-
         Time.timeScale = 0f;
-        CrazyEvents.Instance.GameplayStop();
+
+       // CrazyEvents.Instance.GameplayStop();
     }
 
     public void UnPause()
     {
+        if(Time.timeScale == 0f)
         Time.timeScale = 1f;
-        CrazyEvents.Instance.GameplayStart();
+
+        //CrazyEvents.Instance.GameplayStart();
     }
 
     public void AddMove(int v)
@@ -100,11 +102,12 @@ public class GameManager : MonoBehaviour
     {
         if (currentState == GameState.InGame)
         {
+            SaveManager.Instance.DeleteSaveFile();
+
             //confetti.SetActive(true);
             Invoke("ChangeLevel", 1.4f);
             CoinManager.Instance.SubtractCoins(nextLevelRequirement);
             currentState = GameState.Win;
-
             PlayerPrefs.SetInt("level", currentLevel + 1);
             currentLevel++;
 
@@ -135,7 +138,7 @@ public class GameManager : MonoBehaviour
     public void GoHome()
     {
         UnPause();
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene("Core");
     }
 
     public void LoseLevel()
@@ -160,6 +163,8 @@ public class GameManager : MonoBehaviour
     public void ChangeLevel()
     {
         //SceneManager.LoadScene("Core");
+        SaveManager.Instance.DeleteSaveFile();
+
         if (currentLevel > 2)
         {
             int newId = currentLevel % 2;

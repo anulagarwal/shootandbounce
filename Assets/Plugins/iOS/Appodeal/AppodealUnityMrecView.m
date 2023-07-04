@@ -11,6 +11,8 @@
 #define BANNER_X_POSITION_CENTER    -2
 #define BANNER_X_POSITION_RIGHT     -3
 #define BANNER_X_POSITION_LEFT      -4
+#define BANNER_Y_POSITION_BOTTOM    -1
+#define BANNER_Y_POSITION_TOP       -2
 
 @implementation AppodealUnityMrecView
 
@@ -40,14 +42,14 @@ UIViewController* RootViewControllerUnityMrec() {
         
         [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(didRecieveNotification)
+                                                 selector:@selector(didReceiveNotification)
                                                      name:UIApplicationDidChangeStatusBarOrientationNotification
                                                    object:nil];
     }
     return self;
 }
 
-- (void)didRecieveNotification {
+- (void)didReceiveNotification {
     if (self.onScreen) {
         UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
         [self.mrecView rotateToOrientation:orientation];
@@ -57,6 +59,7 @@ UIViewController* RootViewControllerUnityMrec() {
 - (void)setSharedMrecFrame:(CGFloat)XAxis YAxis:(CGFloat)YAxis {
     UIViewAutoresizing mask = UIViewAutoresizingNone;
     
+    UIView *superView = RootViewControllerUnityMrec().view;
     CGSize  superviewSize = RootViewControllerUnityMrec().view.bounds.size;
     CGFloat screenScale = [[UIScreen mainScreen] scale];
     
@@ -65,21 +68,21 @@ UIViewController* RootViewControllerUnityMrec() {
     
     CGFloat xOffset = .0f;
     CGFloat yOffset = .0f;
-    //Сalculate X offset
-    if (XAxis == BANNER_X_POSITION_LEFT) { //Left
+    // Calculate X offset
+    if (XAxis == BANNER_X_POSITION_LEFT) { // Left
         mask |= UIViewAutoresizingFlexibleRightMargin;
-    } else if (XAxis == BANNER_X_POSITION_RIGHT) { //Right
+    } else if (XAxis == BANNER_X_POSITION_RIGHT) { // Right
         mask |= UIViewAutoresizingFlexibleLeftMargin;
         xOffset = superviewSize.width - mrecWidth;
-    } else if (XAxis == BANNER_X_POSITION_CENTER) { //Center
+    } else if (XAxis == BANNER_X_POSITION_CENTER) { // Center
         xOffset = (superviewSize.width - mrecWidth) / 2;
         mask |= UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleLeftMargin;
-    } else if (XAxis / screenScale > superviewSize.width - mrecWidth) { //User defined offset more than screen width
-        NSLog(@"[Appodeal Banner view][error] Banner view x offset can'not be more than Screen width - acutual banner width");
+    } else if (XAxis / screenScale > superviewSize.width - mrecWidth) { // User defined offset more than screen width
+        NSLog(@"[Appodeal Banner view][error] Banner view x offset cannot be more than Screen width - actual banner width");
         xOffset = superviewSize.width - mrecWidth;
         mask |= UIViewAutoresizingFlexibleLeftMargin;
-    } else if (XAxis < -5) {
-        NSLog(@"[Appodeal Banner view][error] Banner view x offset can'not be less than 0");
+    } else if (XAxis < -4) {
+        NSLog(@"[Appodeal Banner view][error] Banner view x offset cannot be less than 0");
         xOffset = 0;
     } else {
         mask |= UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleLeftMargin;
@@ -87,12 +90,25 @@ UIViewController* RootViewControllerUnityMrec() {
     }
     
     //Calculate Y offset
-    if (YAxis / screenScale > superviewSize.height - mrecHeight) { //User defined offset more than banner width
-        NSLog(@"[Appodeal Banner view][error] Banner view y offset can'not be more than Screen height - acutual banner height");
+    if (YAxis == BANNER_Y_POSITION_TOP) {
+        mask |= UIViewAutoresizingFlexibleBottomMargin;
+        if (@available(iOS 11.0, *)) {
+            yOffset = superView.safeAreaInsets.top;
+        }
+    } else if (YAxis == BANNER_Y_POSITION_BOTTOM) {
+        mask |= UIViewAutoresizingFlexibleTopMargin;
+        if (@available(iOS 11.0, *)) {
+            yOffset = superviewSize.height - mrecHeight - superView.safeAreaInsets.bottom;
+        }
+        else {
+            yOffset = superviewSize.height - mrecHeight;
+        }
+    } else if (YAxis / screenScale > superviewSize.height - mrecHeight) { // User defined offset more than banner width
+        NSLog(@"[Appodeal Banner view][error] Banner view y offset cannot be more than Screen height - actual banner height");
         yOffset = superviewSize.height - mrecHeight;
         mask |= UIViewAutoresizingFlexibleTopMargin;
-    } else if (YAxis < 0) {
-        NSLog(@"[Appodeal Banner view][error] Banner view y offset can'not be less than 0");
+    } else if (YAxis < -2) {
+        NSLog(@"[Appodeal Banner view][error] Banner view y offset cannot be less than 0");
         yOffset = 0;
     } else if (YAxis == .0f) { // All good
         mask |= UIViewAutoresizingFlexibleBottomMargin;

@@ -9,7 +9,8 @@ typedef void (*AppodealBannerDidLoadCallback) (int height, BOOL isPrecache);
 @property (assign, nonatomic) AppodealBannerDidLoadCallback bannerDidLoadAdCallback;
 @property (assign, nonatomic) AppodealBannerCallbacks bannerDidFailToLoadAdCallback;
 @property (assign, nonatomic) AppodealBannerCallbacks bannerDidClickCallback;
-@property (assign, nonatomic) AppodealBannerCallbacks bannerDidShowCallback;
 @property (assign, nonatomic) AppodealBannerCallbacks bannerDidExpiredCallback;
+@property (assign, nonatomic) AppodealBannerCallbacks bannerDidShowCallback;
+@property (assign, nonatomic) AppodealBannerCallbacks bannerDidFailToPresentCallback;
 
 @end

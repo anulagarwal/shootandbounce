@@ -2,7 +2,8 @@ using UnityEngine;
 using DG.Tweening;
 public class DragAndDrop : MonoBehaviour
 {
-    public LayerMask placementLayer; // Layer to detect if the gun is being placed on a valid point
+    public LayerMask placementLayer;
+    public LayerMask binLayer; // Layer to detect if the gun is being placed on a valid point
     public float returnSpeed = 1f; // speed at which the gun returns to the original position
 
     private Vector3 originalPosition;
@@ -14,6 +15,10 @@ public class DragAndDrop : MonoBehaviour
     [SerializeField] private GameObject rangeIndicatorPrefab;
     private GameObject rangeIndicatorInstance;
 
+    private void Start()
+    {
+        originalPosition = transform.position;
+    }
     private void OnMouseDown()
     {
         // Start of a new drag operation
@@ -22,9 +27,12 @@ public class DragAndDrop : MonoBehaviour
         rangeIndicatorInstance = Instantiate(rangeIndicatorPrefab, transform);
         rangeIndicatorInstance.transform.localScale = new Vector3(GetComponent<Gun>().detectionRadius, GetComponent<Gun>().detectionRadius, 1);
 
-
+        GunSelectionGridManager.Instance.BinActive(true);
         // Record the original position
-        originalPosition = transform.position;
+       if(!GetComponent<Gun>().isInGrid && GetComponent<Gun>().isPlaced)
+        {
+            originalPosition = GetComponent<Gun>().currentPlacementPoint.transform.position;
+        }
         GetComponent<Gun>().isPlaced = false;  // Add this line
         if (GetComponent<Gun>().currentPlacementPoint != null)
             GetComponent<Gun>().currentPlacementPoint.levelText.gameObject.SetActive(false);
@@ -90,7 +98,22 @@ public class DragAndDrop : MonoBehaviour
         if (dragging)
         {
             Destroy(rangeIndicatorInstance);
+
             Collider2D hitCollider = Physics2D.OverlapPoint(transform.position, placementLayer);
+            Collider2D deleteCollider = Physics2D.OverlapPoint(transform.position, binLayer);
+            if(deleteCollider != null)
+            {
+                if (GetComponent<Gun>().currentPlacementPoint != null)
+                    GetComponent<Gun>().currentPlacementPoint.isOccupied = false;
+
+                GunSelectionGridManager.Instance.RemoveGun(GetComponent<Gun>());
+                GunSelectionGridManager.Instance.BinActive(false);
+
+                return;
+            }
+            GunSelectionGridManager.Instance.BinActive(false);
+
+
             if (hitCollider != null)
             {
                 PlacementPoint placementPoint = hitCollider.GetComponent<PlacementPoint>();
@@ -101,7 +124,12 @@ public class DragAndDrop : MonoBehaviour
 
                     placedSuccessfully = true;
                     transform.position = hitCollider.transform.position;
-                    originalPosition = transform.position;
+
+                    // Record the original position
+                   if (!GetComponent<Gun>().isInGrid && GetComponent<Gun>().isPlaced)
+                    {
+                        originalPosition = GetComponent<Gun>().currentPlacementPoint.transform.position;
+                    }
                     placementPoint.isOccupied = true;
 
                     if (GetComponent<Gun>().currentPlacementPoint != null)
@@ -112,7 +140,7 @@ public class DragAndDrop : MonoBehaviour
                     GetComponent<Gun>().currentPlacementPoint.levelText.text = GetComponent<Gun>().level + "";
                     GetComponent<Gun>().currentPlacementPoint.levelText.gameObject.SetActive(true);
                     GetComponent<Gun>().ScaleGunToNormal();
-
+                    SaveManager.Instance.DoSaveGame();
                     if (GetComponent<Gun>().isInGrid)
                     {
                         transform.SetParent(null);
@@ -130,6 +158,7 @@ public class DragAndDrop : MonoBehaviour
                 }
                
             }
+
             if (lastTouchedGun != null)
             {
                 Gun otherGun = lastTouchedGun;
@@ -152,6 +181,7 @@ public class DragAndDrop : MonoBehaviour
                     }
                    
                     otherGun.MergeWith(GetComponent<Gun>());
+
                     placedSuccessfully = true;                    
                 }
                 else if (otherGun != null && otherGun != GetComponent<Gun>() && otherGun.level == GetComponent<Gun>().level && (otherGun.isInGrid))
@@ -162,11 +192,6 @@ public class DragAndDrop : MonoBehaviour
                    
                 }
             }
-            
-
-
-
-
 
             if (!placedSuccessfully && !GetComponent<Gun>().isInGrid)
             {

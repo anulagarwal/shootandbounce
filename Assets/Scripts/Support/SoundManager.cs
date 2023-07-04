@@ -19,7 +19,8 @@ public class SoundManager : MonoBehaviour
         Lvl4,
         Lvl5,
         Lvl6,
-        Lvl7
+        Lvl7,
+        Coin
 
         // Add more sound types here
     }

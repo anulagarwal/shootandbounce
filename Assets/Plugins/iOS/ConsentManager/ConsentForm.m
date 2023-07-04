@@ -1,4 +1,3 @@
-
 #if defined(__has_include) && __has_include("UnityAppController.h")
 #import "UnityAppController.h"
 #else
@@ -66,13 +65,13 @@
             NSPredicate *sceneFilter = [NSPredicate predicateWithBlock:^BOOL(UIScene *scene, NSDictionary<NSString *,id> *bindings) {
                 return [scene isKindOfClass:UIWindowScene.class] && scene.activationState == UISceneActivationStateForegroundActive;
             }];
-            NSPredicate *winodwFilter = [NSPredicate predicateWithBlock:^BOOL(UIWindow *window, NSDictionary<NSString *,id> *bindings) {
+            NSPredicate *windowFilter = [NSPredicate predicateWithBlock:^BOOL(UIWindow *window, NSDictionary<NSString *,id> *bindings) {
                 return [window isKeyWindow];
             }];
             
             NSArray <UIWindowScene *> *scenes = (NSArray <UIWindowScene *> *)[[UIApplication.sharedApplication.connectedScenes filteredSetUsingPredicate: sceneFilter] allObjects];
             NSArray <UIWindow *> *windows = scenes.firstObject.windows;
-            keyWindow = [[windows filteredArrayUsingPredicate:winodwFilter] firstObject];
+            keyWindow = [[windows filteredArrayUsingPredicate:windowFilter] firstObject];
         } else {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated"
@@ -115,10 +114,10 @@
 #pragma mark - Static API
 
 void WithListener(ConsentFormCallback onConsentFormLoaded,
-                  ConsentFormCallbackError onConsentFormError,
-                  ConsentFormCallback onConsentFormOpened,
-                  ConsentFormCallbackClosed onConsentFormClosed) {
-    
+                     ConsentFormCallbackError onConsentFormError,
+                     ConsentFormCallback onConsentFormOpened,
+                     ConsentFormCallbackClosed onConsentFormClosed) {
+
     ConsentForm.sharedInstance.onConsentFormLoaded = onConsentFormLoaded;
     ConsentForm.sharedInstance.onConsentFormError = onConsentFormError;
     ConsentForm.sharedInstance.onConsentFormOpened = onConsentFormOpened;
@@ -130,15 +129,10 @@ ConsentForm *GetConsentForm(void) {
 }
 
 void Load(void) {
-    NSLog(@"Consent Load");
     [ConsentForm.sharedInstance loadConsentForm];
 }
 
-void ShowAsActivity(void) {
-    [ConsentForm.sharedInstance showDialog];
-}
-
-void ShowAsDialog(void) {
+void Show(void) {
     [ConsentForm.sharedInstance showDialog];
 }
 

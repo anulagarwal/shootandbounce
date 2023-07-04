@@ -11,7 +11,7 @@ public class EnableDisableGameObject : MonoBehaviour
     public TextMeshProUGUI amount;
     public int claimedAmount=1;
     public int currentAmount = 500;
-    public int baseAmount = 500;
+    public int baseAmount = 250;
 
     public float enableDuration = 5f;  // Time in seconds for which the object will be enabled
     public float cycleTime = 10f; // Total time in seconds for one cycle (enable + disable)
@@ -52,6 +52,8 @@ public class EnableDisableGameObject : MonoBehaviour
     {
         while (true)
         {
+            scaleTween = targetGameObject.transform.DOScale(originalScale * punchScaleMagnitude, punchScaleDuration)
+       .SetEase(Ease.OutBounce).SetLoops(-1, LoopType.Yoyo);
             targetGameObject.SetActive(true);
             timerRoutine = StartCoroutine(UpdateTimerImage());
            
@@ -60,46 +62,60 @@ public class EnableDisableGameObject : MonoBehaviour
             
             targetGameObject.transform.localScale = originalScale;
             targetGameObject.SetActive(false);
+           
             yield return new WaitForSeconds(cycleTime - enableDuration);
         }
     }
 
     private IEnumerator UpdateTimerImage()
     {
-        float currentTime = 0f;
-
-        while (currentTime <= enableDuration)
+        curTime = 0;
+        while (curTime <= enableDuration)
         {
-            currentTime += Time.deltaTime;
-            timerImage.fillAmount = 1f - (currentTime / enableDuration);
+            curTime += Time.deltaTime;
+            timerImage.fillAmount = 1f - (curTime / enableDuration);
+            if (curTime >= enableDuration)
+            {
+                targetGameObject.SetActive(false);
+                claimedAmount++;
+                currentAmount = claimedAmount * baseAmount;
+                amount.text = "+" + currentAmount + "";
+
+            }
             yield return null;
         }
     }
-
+    float curTime;
     public void ResetAndDisableGameObject()
     {
-
-        if (ongoingRoutine != null)
-        {
-            StopCoroutine(ongoingRoutine);
-            ongoingRoutine = null;
-        }
-
-        if (timerRoutine != null)
-        {
-            StopCoroutine(timerRoutine);
-            timerRoutine = null;
-        }
-
-        // Immediately disable the object and reset the image fill amount
-        targetGameObject.SetActive(false);
-        timerImage.fillAmount = 1f;
-
-        // Wait for the remaining time in the cycle before enabling the GameObject again
-        ongoingRoutine = StartCoroutine(ResetAndEnableRoutine());
+        curTime = enableDuration - 0.1f;
         claimedAmount++;
         currentAmount = claimedAmount * baseAmount;
-        amount.text = "+"+currentAmount + "";
+        amount.text = "+" + currentAmount + "";
+        targetGameObject.SetActive(false);
+
+        /*  if (ongoingRoutine != null)
+          {
+              StopCoroutine(ongoingRoutine);
+              ongoingRoutine = null;
+          }
+
+          if (timerRoutine != null)
+          {
+              StopCoroutine(timerRoutine);
+              timerRoutine = null;
+          }
+
+          // Immediately disable the object and reset the image fill amount
+          targetGameObject.SetActive(false);
+          timerImage.fillAmount = 1f;
+
+          // Wait for the remaining time in the cycle before enabling the GameObject again
+          ongoingRoutine = StartCoroutine(ResetAndEnableRoutine());
+          claimedAmount++;
+          currentAmount = claimedAmount * baseAmount;
+          amount.text = "+"+currentAmount + "";*/
+
     }
     private IEnumerator ResetAndEnableRoutine()
 {

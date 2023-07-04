@@ -45,10 +45,9 @@
 }
 
 - (void)rewardedVideoDidClick{
-    if(self.rewardedVideoDidRecieveTapActionCallback){
-        self.rewardedVideoDidRecieveTapActionCallback();
+    if(self.rewardedVideoDidReceiveTapActionCallback){
+        self.rewardedVideoDidReceiveTapActionCallback();
     }
 }
 
 @end
-

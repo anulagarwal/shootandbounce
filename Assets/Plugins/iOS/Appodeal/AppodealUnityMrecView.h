@@ -5,7 +5,7 @@
 + (instancetype)sharedInstance;
 UIViewController* RootViewControllerUnityMrec(void);
 - (id)init;
-- (void)didRecieveNotification;
+- (void)didReceiveNotification;
 - (void)setSharedMrecFrame:(CGFloat)XAxis YAxis:(CGFloat)YAxis;
 - (void)hideMrecView;
 - (void)showMrecView:(UIViewController*)rootViewController XAxis:(CGFloat)XAxis YAxis:(CGFloat)YAxis placement:(NSString*)placement;

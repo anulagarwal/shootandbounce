@@ -36,6 +36,14 @@ public class TutorialManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (PlayerPrefs.GetInt("tutorial", 1) == 1)
+        {
+            isEnabled = true;
+        }
+        else
+        {
+            isEnabled = false;
+        }
         if (isEnabled)
         {
             

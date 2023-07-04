@@ -15,6 +15,13 @@ public class DeathLine : MonoBehaviour
                  .SetLoops(-1, LoopType.Incremental)
                  .SetEase(Ease.Linear);
     }
+
+    public void Rotate()
+    {
+        saw.DORotate(new Vector3(0f, 0f, 1) * speed, 1f, RotateMode.FastBeyond360)
+                .SetLoops(-1, LoopType.Incremental)
+                .SetEase(Ease.Linear);
+    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
         Ball ball = collision.gameObject.GetComponent<Ball>();
