@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Lofelt.NiceVibrations;
+//using Lofelt.NiceVibrations;
 public class VibrationManager : MonoBehaviour
 {
     // Start is called before the first frame update
@@ -20,7 +20,7 @@ public class VibrationManager : MonoBehaviour
     {
         if (PlayerPrefs.GetInt("vibrate", 1) == 1)
         {
-            HapticPatterns.PlayPreset(HapticPatterns.PresetType.MediumImpact);
+           // HapticPatterns.PlayPreset(HapticPatterns.PresetType.MediumImpact);
         }
     }
 }

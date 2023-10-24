@@ -124,7 +124,7 @@ public class UpgradeManager : MonoBehaviour
         {
             BallValueFunction();
         }
-       
+
         if (currentDropValueLevel >= dropValueCosts.Count)
         {
             valueAdIcon.SetActive(false);
@@ -140,7 +140,7 @@ public class UpgradeManager : MonoBehaviour
             valueAdIcon.SetActive(false);
         }
        
-       
+
     }
     public void UpgradeBallDropValueFree()
     {
@@ -167,7 +167,7 @@ public class UpgradeManager : MonoBehaviour
             valueAdIcon.SetActive(false);
         }
 
-       
+
     }
 
     public void UpgradeBallDropSpeedAd()
@@ -318,6 +318,8 @@ public class UpgradeManager : MonoBehaviour
             fireRateAdIcon.SetActive(false);
         }
 
+
+
     }
     public void UpgradeGunFireRateFree()
     {
@@ -346,6 +348,7 @@ public class UpgradeManager : MonoBehaviour
         {
             fireRateAdIcon.SetActive(false);
         }
+       
 
 
     }

@@ -68,6 +68,16 @@ public class SoundManager : MonoBehaviour
             availableSource.Play();
         }
     }
+
+    public void MuteSound()
+    {
+        soundVolume = -soundVolume;
+    }
+
+    public void UnMutesound()
+    {
+        soundVolume = -soundVolume;
+    }
     public void Play(int level)
     {
         SoundType type = SoundType.Pistol;
@@ -101,7 +111,7 @@ public class SoundManager : MonoBehaviour
         {
             type = SoundType.Lvl7;
         }
-        if (PlayerPrefs.GetInt("sound", 1) == 1)
+        if (PlayerPrefs.GetInt("sound", 1) == 1 && Time.timeScale!=0)
         {
             AudioClip clipToPlay = sounds.Find(x => x.type == type).soundClip;
             AudioSource availableSource = GetAvailableAudioSource();

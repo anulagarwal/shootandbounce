@@ -1,2 +1,0 @@
-# Facebook
--keep class com.facebook.** { *; }

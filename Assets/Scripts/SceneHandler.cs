@@ -45,7 +45,7 @@ public class SceneHandler : MonoBehaviour
 
     public void ChangeLevel()
     {
-        ChangeTheLevel();      
+        GetComponent<AdManager>().WatchAdForLevel();
     }
 
     public void ChangeTheLevel()

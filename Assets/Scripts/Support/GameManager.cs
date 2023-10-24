@@ -81,14 +81,16 @@ public class GameManager : MonoBehaviour
     public void PauseGame()
     {
         Time.timeScale = 0f;
-
        // CrazyEvents.Instance.GameplayStop();
     }
 
     public void UnPause()
     {
-        if(Time.timeScale == 0f)
-        Time.timeScale = 1f;
+        if (Time.timeScale == 0f)
+        {
+            Time.timeScale = 1f;
+
+        }
 
         //CrazyEvents.Instance.GameplayStart();
     }

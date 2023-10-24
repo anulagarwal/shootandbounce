@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using GameAnalyticsSDK;
-
+//using GameAnalyticsSDK;
+//using SupersonicWisdomSDK;
 
 namespace Momo
 {
@@ -46,24 +46,31 @@ namespace Momo
 
             //Check if app opened on a new day - check when was last time opened
             //If opened on a new day, track day and level number
+            // Subscribe
+//            SupersonicWisdom.Api.AddOnReadyListener(OnSupersonicWisdomReady);
+            // Then initialize
+        //    SupersonicWisdom.Api.Initialize();
 
             appSessionCount = PlayerPrefs.GetInt("appSession", 0);
             level = PlayerPrefs.GetInt("level", 1);
           
         //   GameAnalytics.NewDesignEvent("session", appSessionCount);
-            GameAnalytics.Initialize();
+     //       GameAnalytics.Initialize();
 
             dayNumber = PlayerPrefs.GetInt("dayNumber", 0);
         }
-  
+
+        void OnSupersonicWisdomReady()
+        {
+            // Start your game from this point
+        }
 
         // Update is called once per frame
         void Update()
         {
 
         }
-
-
+       
         #region App Level
 
         private void OnApplicationPause(bool pause)
@@ -96,13 +103,13 @@ namespace Momo
         {
          //   TinySauce.OnGameStarted(levelNumber + "");
             level = levelNumber;
-            GameAnalytics.NewProgressionEvent(GAProgressionStatus.Start, "level" + levelNumber);
+         //   GameAnalytics.NewProgressionEvent(GAProgressionStatus.Start, "level" + levelNumber);
         }
 
         public void WinLevel()
         {
             //    TinySauce.OnGameFinished(true,0);
-            GameAnalytics.NewProgressionEvent(GAProgressionStatus.Complete, "level" + level);
+          // GameAnalytics.NewProgressionEvent(GAProgressionStatus.Complete, "level" + level);
 
         }
 

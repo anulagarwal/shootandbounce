@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 //using CrazyGames;
-using AppodealAds.Unity.Api;
-using AppodealAds.Unity.Common;
+//using AppodealAds.Unity.Api;
+//using AppodealAds.Unity.Common;
 
-public class AdManager : MonoBehaviour,IRewardedVideoAdListener
+public class AdManager : MonoBehaviour
 {
 
     #region Singleton
@@ -42,11 +42,18 @@ public class AdManager : MonoBehaviour,IRewardedVideoAdListener
     {
         //Appodeal.initialize("8c2fb21772d1170cfe9feaef793420cb9c446d1806692480", Appodeal.REWARDED_VIDEO, this);
         //Appodeal.cache(Appodeal.REWARDED_VIDEO);
-        Appodeal.setRewardedVideoCallbacks(this);
-        Appodeal.initialize("8c2fb21772d1170cfe9feaef793420cb9c446d1806692480", Appodeal.REWARDED_VIDEO, this);
-        Appodeal.setAutoCache(Appodeal.REWARDED_VIDEO, false);
-        Appodeal.cache(Appodeal.REWARDED_VIDEO);
-       
+        /* Appodeal.setRewardedVideoCallbacks(this);
+         Appodeal.initialize("8c2fb21772d1170cfe9feaef793420cb9c446d1806692480", Appodeal.REWARDED_VIDEO, this);
+         Appodeal.setAutoCache(Appodeal.REWARDED_VIDEO, false);
+         Appodeal.cache(Appodeal.REWARDED_VIDEO);*/
+        GameDistribution.Instance.PreloadRewardedAd();
+
+        GameDistribution.OnResumeGame += OnResumeGame;
+       // GameDistribution.OnPauseGame += OnPauseGame;
+       // GameDistribution.OnPreloadRewardedVideo += OnPreloadRewardedVideo;
+        GameDistribution.OnRewardedVideoSuccess += OnRewardedVideoSuccess;
+        GameDistribution.OnRewardedVideoFailure += OnRewardedVideoFailure;
+        GameDistribution.OnRewardGame += OnRewardGame;
     }
 
 
@@ -69,16 +76,24 @@ public class AdManager : MonoBehaviour,IRewardedVideoAdListener
         GameManager.Instance.PauseGame();
         //CrazyAds.Instance.beginAdBreakRewarded(DamageUpgradeBack);
 
+        GameDistribution.Instance.ShowRewardedAd();
 
-        if (Appodeal.isLoaded(Appodeal.REWARDED_VIDEO))
+        /*if (Appodeal.isLoaded(Appodeal.REWARDED_VIDEO))
         {
-            Appodeal.show(Appodeal.REWARDED_VIDEO);
+            /*Appodeal.show(Appodeal.REWARDED_VIDEO);
             Appodeal.cache(Appodeal.REWARDED_VIDEO);
         }
         else
         {
-            GameManager.Instance.UnPause();
-        }
+        }*/
+       // DamageUpgradeBack();
+
+        //remove
+    }
+
+    public void WatchAdForLevel()
+    {
+        GameDistribution.Instance.ShowAd();
     }
 
     void DamageUpgradeBack()
@@ -87,7 +102,10 @@ public class AdManager : MonoBehaviour,IRewardedVideoAdListener
         GunSelectionGridManager.Instance.CallBackRewardedAd();
     }
 
-
+    public void OnResumeGame()
+    {
+        AdBreakChangeLevelSuccess();
+    }
 
     void ChangeLevel()
     {
@@ -111,7 +129,7 @@ public class AdManager : MonoBehaviour,IRewardedVideoAdListener
     }
 
     // Called when rewarded video was loaded, but cannot be shown (internal network errors, placement settings, or incorrect creative)
-    public void onRewardedVideoShowFailed()
+    public void OnRewardedVideoFailure()
     {
         Debug.Log("Video show failed");
         GameManager.Instance.UnPause();
@@ -140,16 +158,24 @@ public class AdManager : MonoBehaviour,IRewardedVideoAdListener
     }
 
     // Called when rewarded video is viewed until the end
-    public void onRewardedVideoFinished(double amount, string name)
+    public void OnRewardedVideoSuccess()
     {
 
-        GunSelectionGridManager.Instance.CallBackRewardedAd();
-        GameManager.Instance.UnPause();
-        Appodeal.cache(Appodeal.REWARDED_VIDEO);
+       
+      //  Appodeal.cache(Appodeal.REWARDED_VIDEO);
         //  Appodeal.cache(Appodeal.REWARDED_VIDEO);
 
     }
 
+    public void OnRewardGame()
+    {
+        GunSelectionGridManager.Instance.CallBackRewardedAd();
+        GameManager.Instance.UnPause();
+
+        GameDistribution.Instance.PreloadRewardedAd();
+
+
+    }
     //Called when rewarded video is expired and can not be shown
     public void onRewardedVideoExpired()
     {

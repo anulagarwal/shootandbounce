@@ -44,7 +44,6 @@ public class MatchWidth : MonoBehaviour
             float clampedAspect = Mathf.Clamp(currentAspecta, minAspect, maxAspect);
             float i = Mathf.InverseLerp(minAspect, maxAspect, clampedAspect);
 
-            print(currentAspecta);
             // Interpolate the orthographic size between the minimum and maximum based on the aspect ratio proximity
             cam.orthographicSize = Mathf.Lerp(minOrthographicSize, maxOrthographicSize, i);
 

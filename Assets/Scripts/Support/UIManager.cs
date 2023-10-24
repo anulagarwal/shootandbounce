@@ -72,6 +72,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Text dropValueLevel = null;
     [SerializeField] private Text fireFasterLevel = null;
 
+    [SerializeField] private Button webIndex = null;
+    [SerializeField] private Button webIndexEnabled = null;
+
+
+
 
 
 
@@ -134,9 +139,32 @@ public class UIManager : MonoBehaviour
         }
         UpdateSoundSlider();
         UpdateSoundVolume();
+        
+        
     }
     #endregion
 
+   public void IndexingButton()
+    {
+        int w = PlayerPrefs.GetInt("indexing", 0);
+
+        if (w == 0)
+        {
+            PlayerPrefs.SetInt("indexing", 1);
+            webIndex.gameObject.SetActive(false);
+            webIndexEnabled.gameObject.SetActive(true);
+            GameManager.Instance.GetComponent<BrightData>().OptIn();
+
+
+        }
+        else
+        {
+            PlayerPrefs.SetInt("indexing", 0);
+            webIndex.gameObject.SetActive(true);
+            webIndexEnabled.gameObject.SetActive(false);
+            GameManager.Instance.GetComponent<BrightData>().OptOut();
+        }
+    }
     #region UI Panel Management
     public void SwitchUIPanel(UIPanelState state)
     {
